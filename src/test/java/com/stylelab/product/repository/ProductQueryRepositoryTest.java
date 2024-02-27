@@ -3,8 +3,13 @@ package com.stylelab.product.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.stylelab.file.constant.ImageType;
+import com.stylelab.product.domain.QProductImage;
 import com.stylelab.product.repository.dto.ProductCollection;
+import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.QProductCollection;
+import com.stylelab.product.repository.dto.QProductDetail;
+import com.stylelab.product.repository.dto.QProductDetailImage;
+import com.stylelab.store.constant.ApproveType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +24,7 @@ import java.util.List;
 import static com.stylelab.category.domain.QProductCategories.productCategories;
 import static com.stylelab.product.domain.QProduct.product;
 import static com.stylelab.product.domain.QProductImage.productImage;
+import static com.stylelab.store.domain.QStore.store;
 
 
 @Slf4j
@@ -27,6 +33,9 @@ public class ProductQueryRepositoryTest {
 
     @Autowired
     private JPAQueryFactory jpaQueryFactory;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Test
     @DisplayName("상품 목록 조회 query test - where 조건이 아무것도 없는 경우")
@@ -208,19 +217,60 @@ public class ProductQueryRepositoryTest {
     }
 
     @Test
-    @DisplayName("상품 목록 조회 cursor paging query test")
-    public void cursorFindByProductByConditions_04() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Integer discountRate = 10;
-        Integer price1 = 35000;
-        Integer price2 = null;
-        Pageable pageable = PageRequest.of(0, 10);
+    @DisplayName("상품 상세 조회")
+    public void findByProductId() {
+        final Long productId = 60L;
 
-        //when
-        // TODO Slice
+        ProductDetail productDetail = jpaQueryFactory
+                .select(
+                        new QProductDetail(
+                                product.productId,
+                                store.storeId,
+                                store.name,
+                                store.brand,
+                                productCategories.categoryPath,
+                                productCategories.categoryName,
+                                product.name,
+                                product.price,
+                                product.discountPrice,
+                                product.discountRate,
+                                product.useOption,
+                                product.optionDepth,
+                                product.option2,
+                                product.option1,
+                                product.quantity,
+                                product.soldOut,
+                                product.deleted
+                        )
+                )
+                .from(product)
+                .innerJoin(store).on(product.store.storeId.eq(store.storeId))
+                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .where(
+                        product.productId.eq(productId),
+                        product.deleted.eq(false),
+                        store.approveType.eq(ApproveType.APPROVE)
+                )
+                .fetchOne();
+    }
 
-        //then
+    @Test
+    @DisplayName("상품 상세 이미지 목록 조회")
+    public void findAllByProductId() {
+        final Long productId = 60L;
+        jpaQueryFactory
+                .select(
+                        new QProductDetailImage(
+                                productImage.productImageId,
+                                productImage.product.productId,
+                                productImage.imageUrl,
+                                productImage.imageOrder,
+                                productImage.imageType
+                        )
+                )
+                .from(productImage)
+                .where(productImage.product.productId.eq(productId))
+                .fetch();
     }
 
     private BooleanExpression likeProductCategoryPath(String productCategoryPath) {
@@ -231,8 +281,6 @@ public class ProductQueryRepositoryTest {
         return product.productCategoryPath.like(productCategoryPath + "%");
     }
 
-
-
     private BooleanExpression eqDiscountRate(Integer discountRate) {
         if (discountRate == null) {
             return null;
@@ -240,8 +288,6 @@ public class ProductQueryRepositoryTest {
 
         return product.discountRate.eq(discountRate);
     }
-
-
 
     private BooleanExpression betweenPrice(Integer price1, Integer price2) {
         if (price1 == null && price2 == null) {
