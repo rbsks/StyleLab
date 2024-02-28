@@ -93,7 +93,8 @@ public class WebSecurityConfiguration {
                                         "/**/stores/signin"
                                 ).permitAll()
                                 .requestMatchers(
-                                        "/**/products"
+                                        "/**/products",
+                                        "/**/products/{productId}"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/healthCheck"

@@ -4,11 +4,13 @@ import com.stylelab.common.dto.ApiResponse;
 import com.stylelab.common.dto.PagingResponse;
 import com.stylelab.product.application.ProductFacade;
 import com.stylelab.product.presentation.response.ProductCollectionResponse;
+import com.stylelab.product.presentation.response.ProductDetailResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,5 +32,10 @@ public class ProductController {
             @RequestParam(name = "discountRate", required = false) Integer discountRate,
             Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.createApiResponse(productFacade.findByProductByConditions(productName, productCategoryPath, price1, price2, discountRate, pageable)));
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> findByProductId(@PathVariable final Long productId) {
+        return ResponseEntity.ok(ApiResponse.createApiResponse(productFacade.findByProductId(productId)));
     }
 }
