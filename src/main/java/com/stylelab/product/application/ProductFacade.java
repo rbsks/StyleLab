@@ -1,6 +1,8 @@
 package com.stylelab.product.application;
 
 import com.stylelab.common.dto.PagingResponse;
+import com.stylelab.product.exception.ProductError;
+import com.stylelab.product.exception.ProductException;
 import com.stylelab.product.presentation.response.ProductCollectionResponse;
 import com.stylelab.product.presentation.response.ProductDetailResponse;
 import com.stylelab.product.repository.dto.ProductDetail;
@@ -32,8 +34,15 @@ public class ProductFacade {
 
     public ProductDetailResponse findByProductId(final Long productId) {
         ProductDetail productDetail = productService.findByProductId(productId);
+
+        if (productDetail.deleted()) {
+            throw new ProductException(ProductError.ALREADY_DELETED_PRODUCT);
+        }
+
         List<ProductDetailImage> productDetailImages = productImageService.findAllByProductId(productId);
 
         return ProductDetailResponse.createProductDetailResponse(productDetail, productDetailImages);
     }
+
+    // TODO get product option
 }

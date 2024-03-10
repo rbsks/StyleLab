@@ -39,6 +39,7 @@ public enum ProductError implements CommonError {
     PRODUCT_OPTION2_NAME_REQUIRE(HttpStatus.BAD_REQUEST, "67025", "상품 옵션2이 존재 시 옵션2의 이름 정보는 값은 필수입니다."),
     PRODUCT_IMAGES_REQUIRE(HttpStatus.BAD_REQUEST, "67026", "상품 이미지는 필수입니다."),
     NOT_FOUND_PRODUCT(HttpStatus.BAD_REQUEST, "67027", "존재하지 않는 상품입니다."),
+    ALREADY_DELETED_PRODUCT(HttpStatus.BAD_REQUEST, "67028", "삭제된 상품입니다."),
 
     PRODUCT_SAVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "67500", "스토어, 스토어 스태프 등록에 실패하였습니다. 관리자에가 문의해 주십시오.");
     private final HttpStatus httpStatus;
