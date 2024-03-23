@@ -1,6 +1,6 @@
-package com.stylelab.category.repository;
+package com.stylelab.category.infrastructure;
 
-import com.stylelab.category.repository.dto.ProductCategoryCollection;
+import com.stylelab.category.infrastructure.dto.ProductCategoryDto;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,18 +44,18 @@ public class ProductCategoryJdbcRepositoryTest {
         String orderBy = orderBy(pageable);
         String sql = selectFrom + where + orderBy;
 
-        List<ProductCategoryCollection> content = jdbcClient.sql(sql)
+        List<ProductCategoryDto> content = jdbcClient.sql(sql)
                 .params(params)
-                .query(ProductCategoryCollection.class)
+                .query(ProductCategoryDto.class)
                 .list();
 
-        SliceImpl<ProductCategoryCollection> productCategoryCollections = new SliceImpl<>(content, pageable, isLast(pageable, content));
-        for (ProductCategoryCollection productCategoryCollection : productCategoryCollections) {
-            log.info("productCategoryCollection: {}", productCategoryCollection.name());
+        SliceImpl<ProductCategoryDto> productCategoryCollections = new SliceImpl<>(content, pageable, isLast(pageable, content));
+        for (ProductCategoryDto productCategoryDto : productCategoryCollections) {
+            log.info("productCategoryCollection: {}", productCategoryDto.name());
         }
     }
 
-    private boolean isLast(Pageable pageable, List<ProductCategoryCollection> results) {
+    private boolean isLast(Pageable pageable, List<ProductCategoryDto> results) {
         boolean isLast = false;
         if (results.size() > pageable.getPageSize()) {
             isLast = true;

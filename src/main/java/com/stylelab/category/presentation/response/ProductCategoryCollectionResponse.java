@@ -1,6 +1,6 @@
 package com.stylelab.category.presentation.response;
 
-import com.stylelab.category.repository.dto.ProductCategoryCollection;
+import com.stylelab.category.infrastructure.dto.ProductCategoryDto;
 import com.stylelab.file.constant.ImageType;
 
 import java.time.format.DateTimeFormatter;
@@ -22,22 +22,22 @@ public record ProductCategoryCollectionResponse(
         String createdAt
 ) {
 
-    public static ProductCategoryCollectionResponse createProductCategoryCollectionResponse(ProductCategoryCollection productCategoryCollection) {
+    public static ProductCategoryCollectionResponse create(ProductCategoryDto productCategoryDto) {
         return new ProductCategoryCollectionResponse(
-                productCategoryCollection.productId(),
-                productCategoryCollection.storeId(),
-                productCategoryCollection.name(),
-                productCategoryCollection.productCategoryPath(),
-                productCategoryCollection.productCategoryName(),
-                productCategoryCollection.productMainImage(),
-                productCategoryCollection.productMainImageType(),
-                productCategoryCollection.name(),
-                productCategoryCollection.price(),
-                productCategoryCollection.discountPrice(),
-                productCategoryCollection.discountRate(),
-                productCategoryCollection.soldOut(),
-                productCategoryCollection.deleted(),
-                productCategoryCollection.createdAt().format(
+                productCategoryDto.productId(),
+                productCategoryDto.storeId(),
+                productCategoryDto.storeName(),
+                productCategoryDto.productCategoryPath(),
+                productCategoryDto.productCategoryName(),
+                productCategoryDto.productMainImage(),
+                productCategoryDto.productMainImageType(),
+                productCategoryDto.name(),
+                productCategoryDto.price(),
+                productCategoryDto.discountPrice(),
+                productCategoryDto.discountRate(),
+                productCategoryDto.soldOut(),
+                productCategoryDto.deleted(),
+                productCategoryDto.createdAt().format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                 )
         );

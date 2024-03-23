@@ -1,4 +1,4 @@
-package com.stylelab.category.domain;
+package com.stylelab.category.infrastructure;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity(name = "product_categories")
-public class ProductCategories {
+public class ProductCategoryEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)

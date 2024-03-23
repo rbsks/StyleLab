@@ -1,8 +1,8 @@
-package com.stylelab.category.repository;
+package com.stylelab.category.infrastructure;
 
 import com.stylelab.category.constant.ProductCategoryType;
-import com.stylelab.category.dto.ProductCategoryCondition;
-import com.stylelab.category.repository.dto.ProductCategoryCollection;
+import com.stylelab.category.infrastructure.dto.ProductCategoryCondition;
+import com.stylelab.category.infrastructure.dto.ProductCategoryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -15,12 +15,11 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class ProductCategoryJdbcRepositoryImpl implements ProductCategoryJdbcRepository {
+public class ProductCategoryJdbcRepository {
 
     private final JdbcClient jdbcClient;
 
-    @Override
-    public Slice<ProductCategoryCollection> findAllProductCategoryConditions(ProductCategoryCondition productCategoryCondition) {
+    public Slice<ProductCategoryDto> findAllProductCategoryConditions(ProductCategoryCondition productCategoryCondition) {
         Pageable pageable = productCategoryCondition.pageable();
         ProductCategoryType productCategoryType = productCategoryCondition.productCategoryType();
         String targetProductCategoryTable = productCategoryType.getTableName();
@@ -33,9 +32,9 @@ public class ProductCategoryJdbcRepositoryImpl implements ProductCategoryJdbcRep
                         addBetweenPrice(productCategoryCondition.price1(), productCategoryCondition.price2(), params);
         String orderBy = orderBy(pageable);
 
-        List<ProductCategoryCollection> content = jdbcClient.sql(sql + where + orderBy)
+        List<ProductCategoryDto> content = jdbcClient.sql(sql + where + orderBy)
                 .params(params)
-                .query(ProductCategoryCollection.class)
+                .query(ProductCategoryDto.class)
                 .list();
 
         return new SliceImpl<>(content, pageable, isLast(pageable, content));
@@ -109,5 +108,15 @@ public class ProductCategoryJdbcRepositoryImpl implements ProductCategoryJdbcRep
         }
 
         return goePrice;
+    }
+
+    private boolean isLast(Pageable pageable, List<ProductCategoryDto> results) {
+        boolean isLast = false;
+        if (results.size() > pageable.getPageSize()) {
+            isLast = true;
+            results.remove(pageable.getPageSize());
+        }
+
+        return isLast;
     }
 }

@@ -1,6 +1,8 @@
 package com.stylelab.category.presentation;
 
-import com.stylelab.category.application.ProductCategoriesFacade;
+import com.stylelab.category.application.ProductCategoryCollection;
+import com.stylelab.category.application.ProductCategoryQueryCriteria;
+import com.stylelab.category.application.ProductCategoryService;
 import com.stylelab.category.presentation.response.ProductCategoriesResponse;
 import com.stylelab.category.presentation.response.ProductCategoryCollectionResponse;
 import com.stylelab.common.dto.ApiResponse;
@@ -19,13 +21,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/categories")
 @RequiredArgsConstructor
-public class ProductCategoriesController {
+public class ProductCategoryController {
 
-    private final ProductCategoriesFacade productCategoriesFacade;
+    private final ProductCategoryService productCategoryService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<ProductCategoriesResponse>> findAll() {
-        return ResponseEntity.ok(ApiResponse.createApiResponse(productCategoriesFacade.findAllCategories()));
+    public ResponseEntity<ApiResponse<ProductCategoriesResponse>> findAllCategories() {
+
+        return ResponseEntity.ok(
+                ApiResponse.createApiResponse(
+                        ProductCategoriesResponse.create(productCategoryService.findAllCategories())
+                )
+        );
     }
 
     @GetMapping("/{productCategoryPath}")
@@ -38,10 +45,19 @@ public class ProductCategoriesController {
             @RequestParam(name = "discountRate", required = false) final Integer discountRate,
             Pageable pageable) {
 
+        ProductCategoryQueryCriteria productCategoryQueryCriteria = ProductCategoryQueryCriteria.create(
+                productId, productName, productCategoryPath, price1, price2, discountRate, pageable
+        );
+
+        ProductCategoryCollection productCategoryConditions =
+                productCategoryService.findAllProductCategoryConditions(productCategoryQueryCriteria);
+
         return ResponseEntity.ok(
                 ApiResponse.createApiResponse(
-                        productCategoriesFacade.findAllProductCategoryConditions(
-                                productId, productName, productCategoryPath, price1, price2, discountRate, pageable
+                        PagingResponse.createCursorPagingResponse(
+                                productCategoryConditions.productCategoryDtos()
+                                        .map(ProductCategoryCollectionResponse::create),
+                                productCategoryConditions.nextToken()
                         )
                 )
         );
