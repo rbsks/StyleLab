@@ -5,6 +5,7 @@ import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
 import com.stylelab.product.presentation.response.ProductCollectionResponse;
 import com.stylelab.product.presentation.response.ProductDetailResponse;
+import com.stylelab.product.presentation.response.ProductOptionDetailResponse;
 import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.ProductDetailImage;
 import com.stylelab.product.service.ProductImageService;
@@ -44,5 +45,14 @@ public class ProductFacade {
         return ProductDetailResponse.createProductDetailResponse(productDetail, productDetailImages);
     }
 
-    // TODO get product option
+    public ProductOptionDetailResponse findByProductOption(final Long productId) {
+
+        // TODO get product option 1
+
+        // TODO get product option 2
+
+        // TODO aggregate product 1, product 2
+
+        return null;
+    }
 }
