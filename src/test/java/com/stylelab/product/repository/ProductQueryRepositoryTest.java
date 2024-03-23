@@ -3,7 +3,6 @@ package com.stylelab.product.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.stylelab.file.constant.ImageType;
-import com.stylelab.product.domain.QProductImage;
 import com.stylelab.product.repository.dto.ProductCollection;
 import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.QProductCollection;
@@ -21,7 +20,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-import static com.stylelab.category.domain.QProductCategories.productCategories;
+import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
 import static com.stylelab.product.domain.QProduct.product;
 import static com.stylelab.product.domain.QProductImage.productImage;
 import static com.stylelab.store.domain.QStore.store;
@@ -49,8 +48,8 @@ public class ProductQueryRepositoryTest {
                         new QProductCollection(
                                 product.productId,
                                 product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.price,
                                 product.discountPrice,
                                 product.discountRate,
@@ -63,7 +62,7 @@ public class ProductQueryRepositoryTest {
                         product.productId.eq(productImage.product.productId)
                                 .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
                 )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -84,8 +83,8 @@ public class ProductQueryRepositoryTest {
                         new QProductCollection(
                                 product.productId,
                                 product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.price,
                                 product.discountPrice,
                                 product.discountRate,
@@ -98,7 +97,7 @@ public class ProductQueryRepositoryTest {
                         product.productId.eq(productImage.product.productId)
                                 .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
                 )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         likeProductCategoryPath(productCategoryPath)
                 )
@@ -123,8 +122,8 @@ public class ProductQueryRepositoryTest {
                         new QProductCollection(
                                 product.productId,
                                 product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.price,
                                 product.discountPrice,
                                 product.discountRate,
@@ -137,7 +136,7 @@ public class ProductQueryRepositoryTest {
                         product.productId.eq(productImage.product.productId)
                                 .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
                 )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         likeProductCategoryPath(productCategoryPath),
                         eqDiscountRate(discountRate)
@@ -165,8 +164,8 @@ public class ProductQueryRepositoryTest {
                         new QProductCollection(
                                 product.productId,
                                 product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.price,
                                 product.discountPrice,
                                 product.discountRate,
@@ -179,7 +178,7 @@ public class ProductQueryRepositoryTest {
                         product.productId.eq(productImage.product.productId)
                                 .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
                 )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         likeProductCategoryPath(productCategoryPath),
                         eqDiscountRate(discountRate),
@@ -228,8 +227,8 @@ public class ProductQueryRepositoryTest {
                                 store.storeId,
                                 store.name,
                                 store.brand,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.name,
                                 product.price,
                                 product.discountPrice,
@@ -245,7 +244,7 @@ public class ProductQueryRepositoryTest {
                 )
                 .from(product)
                 .innerJoin(store).on(product.store.storeId.eq(store.storeId))
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         product.productId.eq(productId),
                         product.deleted.eq(false),

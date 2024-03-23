@@ -1,6 +1,8 @@
-package com.stylelab.category.dto;
+package com.stylelab.category.infrastructure.dto;
 
 import com.stylelab.category.constant.ProductCategoryType;
+import com.stylelab.category.exception.ProductCategoryError;
+import com.stylelab.category.exception.ProductCategoryException;
 import org.springframework.data.domain.Pageable;
 
 public record ProductCategoryCondition(
@@ -14,7 +16,13 @@ public record ProductCategoryCondition(
         Pageable pageable
 ) {
 
-    public static ProductCategoryCondition createProductCategoryCondition(
+    public ProductCategoryCondition {
+        if (productCategoryType == null) {
+            throw new ProductCategoryException(ProductCategoryError.INVALID_PRODUCT_CATEGORY_PATH);
+        }
+    }
+
+    public static ProductCategoryCondition create(
             ProductCategoryType productCategoryType, Long productId, String productName, String productCategoryPath,
             Integer price1, Integer price2, Integer discountRate, Pageable pageable) {
         return new ProductCategoryCondition(

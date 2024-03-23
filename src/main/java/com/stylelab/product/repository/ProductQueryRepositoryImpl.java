@@ -3,7 +3,6 @@ package com.stylelab.product.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.stylelab.category.domain.QProductCategories;
 import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.repository.dto.ProductCollection;
 import com.stylelab.product.repository.dto.ProductDetail;
@@ -12,7 +11,6 @@ import com.stylelab.product.repository.dto.QProductCollection;
 import com.stylelab.product.repository.dto.QProductDetail;
 import com.stylelab.product.repository.dto.QProductDetailImage;
 import com.stylelab.store.constant.ApproveType;
-import com.stylelab.store.domain.QStore;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +21,7 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 
-import static com.stylelab.category.domain.QProductCategories.productCategories;
+import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
 import static com.stylelab.product.domain.QProduct.product;
 import static com.stylelab.product.domain.QProductImage.productImage;
 import static com.stylelab.store.domain.QStore.store;
@@ -43,8 +41,8 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                         new QProductCollection(
                                 product.productId,
                                 product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
                                 product.price,
                                 product.discountPrice,
                                 product.discountRate,
@@ -57,7 +55,7 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                         product.productId.eq(productImage.product.productId)
                                 .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
                 )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         likeProductCategoryPath(productCategoryPath),
                         eqDiscountRate(discountRate),
@@ -89,28 +87,28 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                 jpaQueryFactory
                         .select(
                                 new QProductDetail(
-                                    product.productId,
-                                    store.storeId,
-                                    store.name,
-                                    store.brand,
-                                    productCategories.categoryPath,
-                                    productCategories.categoryName,
-                                    product.name,
-                                    product.price,
-                                    product.discountPrice,
-                                    product.discountRate,
-                                    product.useOption,
-                                    product.optionDepth,
-                                    product.option2,
-                                    product.option1,
-                                    product.quantity,
-                                    product.soldOut,
-                                    product.deleted
+                                        product.productId,
+                                        store.storeId,
+                                        store.name,
+                                        store.brand,
+                                        productCategoryEntity.categoryPath,
+                                        productCategoryEntity.categoryName,
+                                        product.name,
+                                        product.price,
+                                        product.discountPrice,
+                                        product.discountRate,
+                                        product.useOption,
+                                        product.optionDepth,
+                                        product.option2,
+                                        product.option1,
+                                        product.quantity,
+                                        product.soldOut,
+                                        product.deleted
                                 )
                         )
                         .from(product)
                         .innerJoin(store).on(product.store.storeId.eq(store.storeId))
-                        .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                        .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                         .where(
                                 product.productId.eq(productId),
                                 product.deleted.eq(false),

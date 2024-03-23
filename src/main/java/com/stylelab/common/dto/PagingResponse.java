@@ -37,7 +37,7 @@ public record PagingResponse<T>(
                 page.isLast(),
                 null,
                 null,
-                page.getNumber(),
+                null,
                 page.getSize(),
                 nextToken,
                 page.getContent()
