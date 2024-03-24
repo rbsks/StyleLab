@@ -4,7 +4,7 @@ import com.stylelab.common.security.exception.CustomAccessDeniedHandler;
 import com.stylelab.common.security.exception.CustomAuthenticationEntryPoint;
 import com.stylelab.common.security.filter.JwtAuthenticationFilter;
 import com.stylelab.store.constant.StoreStaffRole;
-import com.stylelab.user.constant.UsersRole;
+import com.stylelab.user.constant.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -79,10 +79,10 @@ public class WebSecurityConfiguration {
                         authorizeHttpRequests
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(
-                                        "/**/users/signup",
-                                        "/**/users/check-email",
-                                        "/**/users/check-nickname",
-                                        "/**/users/signin"
+                                        "/**/auth/signup",
+                                        "/**/auth/check-email",
+                                        "/**/auth/check-nickname",
+                                        "/**/auth/signin"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/**/categories",
@@ -99,7 +99,7 @@ public class WebSecurityConfiguration {
                                 .requestMatchers(
                                         "/healthCheck"
                                 ).permitAll()
-                                .requestMatchers( "/**/users/deliveries").hasRole(UsersRole.ROLE_USER.getRole())
+                                .requestMatchers( "/**/users/deliveries").hasRole(UserRole.ROLE_USER.getRole())
                                 .requestMatchers( "/**/stores/**").hasAnyRole(
                                         StoreStaffRole.ROLE_STORE_OWNER.getRole(),
                                         StoreStaffRole.ROLE_STORE_STAFF.getRole()

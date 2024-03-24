@@ -1,38 +1,23 @@
 package com.stylelab.user.presentation.request;
 
-import com.stylelab.user.domain.UserDeliveryAddress;
-import com.stylelab.user.domain.Users;
-import com.stylelab.user.exception.UsersError;
+import com.stylelab.user.exception.UserError;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 
 @Builder
 public record CreateUserDeliveryAddressRequest(
-        @NotBlank(message = "DELIVERY_ADDRESS_REQUIRE", payload = UsersError.class)
+        @NotBlank(message = "DELIVERY_ADDRESS_REQUIRE", payload = UserError.class)
         String address,
-        @NotBlank(message = "DELIVERY_ADDRESS_DETAIL_REQUIRE", payload = UsersError.class)
+        @NotBlank(message = "DELIVERY_ADDRESS_DETAIL_REQUIRE", payload = UserError.class)
         String addressDetail,
-        @NotBlank(message = "DELIVERY_POSTAL_CODE_REQUIRE", payload = UsersError.class)
+        @NotBlank(message = "DELIVERY_POSTAL_CODE_REQUIRE", payload = UserError.class)
         String postalCode,
-        @NotBlank(message = "DELIVERY_ADDRESS_ALIASES_REQUIRE", payload = UsersError.class)
+        @NotBlank(message = "DELIVERY_ADDRESS_ALIASES_REQUIRE", payload = UserError.class)
         String addressAliases,
-        @NotNull(message = "DELIVERY_DEFAULT_ADDRESS_REQUIRE", payload = UsersError.class)
+        @NotNull(message = "DELIVERY_DEFAULT_ADDRESS_REQUIRE", payload = UserError.class)
         Boolean defaultDeliveryAddress
 ) {
-
-    public static UserDeliveryAddress toEntity(
-            Users users,
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest) {
-        return UserDeliveryAddress.builder()
-                .users(users)
-                .address(createUserDeliveryAddressRequest.address())
-                .addressDetail(createUserDeliveryAddressRequest.addressDetail())
-                .postalCode(createUserDeliveryAddressRequest.postalCode())
-                .addressAliases(createUserDeliveryAddressRequest.addressAliases())
-                .defaultDeliveryAddress(createUserDeliveryAddressRequest.defaultDeliveryAddress())
-                .build();
-    }
 
     @Override
     public String toString() {

@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 @Getter
 @AllArgsConstructor
-public enum UsersError implements CommonError {
+public enum UserError implements CommonError {
     DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "61000", "중복된 이메일입니다."),
     DUPLICATE_NICKNAME(HttpStatus.BAD_REQUEST, "61001", "중복된 닉네임입니다."),
     DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "61002", "중복된 핸드폰 번호입니다."),
@@ -30,6 +30,8 @@ public enum UsersError implements CommonError {
     DELIVERY_POSTAL_CODE_REQUIRE(HttpStatus.BAD_REQUEST, "61017", "배송지 우편 주소는 필수입니다." ),
     DELIVERY_ADDRESS_ALIASES_REQUIRE(HttpStatus.BAD_REQUEST, "61018", "배송지 별칭은 필수입니다." ),
     DELIVERY_DEFAULT_ADDRESS_REQUIRE(HttpStatus.BAD_REQUEST, "61019", "기본 배송지 값은 필수입니다." ),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "61020", "올바르지 않은 비밀번호입니다."),
+    INVALID_USER(HttpStatus.BAD_REQUEST, "61021", "유효하지 않은 회원입니다."),
 
     USERS_SAVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "61050", "회원 등록에 실패하였습니다. 관리자에가 문의해 주십시오."),
     DELIVERY_ADDRESS_SAVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "61051", "회원 배송지 등록에 실패하였습니다. 관리자에가 문의해 주십시오.");
@@ -38,8 +40,8 @@ public enum UsersError implements CommonError {
     private final String code;
     private final String message;
 
-    public static UsersError of(String error) {
-        return Arrays.stream(UsersError.values())
+    public static UserError of(String error) {
+        return Arrays.stream(UserError.values())
                 .filter(usersError -> usersError.name().equalsIgnoreCase(error))
                 .findAny()
                 .orElse(null);

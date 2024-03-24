@@ -2,7 +2,7 @@ package com.stylelab.common.security.jwt;
 
 import com.stylelab.common.exception.ServiceException;
 import com.stylelab.common.security.constant.UserType;
-import com.stylelab.user.constant.UsersRole;
+import com.stylelab.user.constant.UserRole;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ public class JwtTokenProviderTest {
     public void createAuthToken() {
         // given
         final String email = "test@gmail.com";
-        final String role = UsersRole.ROLE_USER.name();
+        final String role = UserRole.ROLE_USER.name();
 
         // when
         String token = jwtTokenProvider.createAuthToken(email, role, UserType.USER);
@@ -66,7 +66,7 @@ public class JwtTokenProviderTest {
     public void failureGetAuthentication_02() {
         // given
         final String email = "test12@gmail.com";
-        final String role = UsersRole.ROLE_USER.name();
+        final String role = UserRole.ROLE_USER.name();
         final String token = jwtTokenProvider.createAuthToken(email, role, UserType.USER);
 
         // when
