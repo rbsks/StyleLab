@@ -1,6 +1,6 @@
 package com.stylelab.user.presentation.response;
 
-import com.stylelab.user.exception.UsersException;
+import com.stylelab.user.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ public class SigInResponseTest {
         String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGdtYWlsLmNvbSIsInJvbGUiOiJST0xFX1VTRVIiLCJleHAiOjE3MDM2OTU0MzV9.FkF6Dq6sM-krPxm5CzYE4qknlBZsou7n1GPd3L9rTd";
 
         // when
-        SignInResponse response = SignInResponse.createResponse(token);
+        SignInResponse response = SignInResponse.create(token);
 
         // then
         assertNotNull(response);
@@ -31,7 +31,7 @@ public class SigInResponseTest {
         String token = null;
 
         // when
-        assertThrows(UsersException.class,
-                () -> SignInResponse.createResponse(token));
+        assertThrows(UserException.class,
+                () -> SignInResponse.create(token));
     }
 }

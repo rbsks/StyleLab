@@ -5,26 +5,26 @@ import com.stylelab.common.exception.ServiceException;
 import lombok.Getter;
 
 @Getter
-public class UsersException extends ServiceException {
+public class UserException extends ServiceException {
 
     private final CommonError serviceError;
 
-    public UsersException(CommonError serviceError) {
+    public UserException(CommonError serviceError) {
         super(serviceError, serviceError.getMessage());
         this.serviceError = serviceError;
     }
 
-    public UsersException(CommonError serviceError, String message) {
+    public UserException(CommonError serviceError, String message) {
         super(serviceError, message);
         this.serviceError = serviceError;
     }
 
-    public UsersException(CommonError serviceError, Throwable cause) {
+    public UserException(CommonError serviceError, Throwable cause) {
         super(serviceError, serviceError.getMessage(), cause);
         this.serviceError = serviceError;
     }
 
-    public UsersException(CommonError serviceError, String message, Throwable cause) {
+    public UserException(CommonError serviceError, String message, Throwable cause) {
         super(serviceError, message, cause);
         this.serviceError = serviceError;
     }

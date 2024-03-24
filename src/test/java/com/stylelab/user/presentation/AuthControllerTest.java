@@ -1,10 +1,6 @@
 package com.stylelab.user.presentation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stylelab.common.annotation.WithAccount;
-import com.stylelab.common.security.constant.UserType;
-import com.stylelab.user.exception.UsersError;
-import com.stylelab.user.presentation.request.CreateUserDeliveryAddressRequest;
 import com.stylelab.user.presentation.request.SignInRequest;
 import com.stylelab.user.presentation.request.SignupRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,23 +11,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import static com.stylelab.user.exception.UsersError.CONFIRM_PASSWORD_IS_REQUIRED;
-import static com.stylelab.user.exception.UsersError.EMAIL_IS_NOT_IN_THE_CORRECT_FORMAT;
-import static com.stylelab.user.exception.UsersError.EMAIL_IS_REQUIRED;
-import static com.stylelab.user.exception.UsersError.NAME_IS_NOT_IN_THE_CORRECT_FORMAT;
-import static com.stylelab.user.exception.UsersError.NAME_IS_REQUIRED;
-import static com.stylelab.user.exception.UsersError.NICKNAME_IS_NOT_IN_THE_CORRECT_FORMAT;
-import static com.stylelab.user.exception.UsersError.NICKNAME_IS_REQUIRED;
-import static com.stylelab.user.exception.UsersError.PASSWORD_IS_NOT_IN_THE_CORRECT_FORMAT;
-import static com.stylelab.user.exception.UsersError.PASSWORD_IS_REQUIRED;
-import static com.stylelab.user.exception.UsersError.PHONE_NUMBER_IS_NOT_IN_THE_CORRECT_FORMAT;
-import static com.stylelab.user.exception.UsersError.PHONE_NUMBER_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.CONFIRM_PASSWORD_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.EMAIL_IS_NOT_IN_THE_CORRECT_FORMAT;
+import static com.stylelab.user.exception.UserError.EMAIL_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.INVALID_PASSWORD;
+import static com.stylelab.user.exception.UserError.NAME_IS_NOT_IN_THE_CORRECT_FORMAT;
+import static com.stylelab.user.exception.UserError.NAME_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.NICKNAME_IS_NOT_IN_THE_CORRECT_FORMAT;
+import static com.stylelab.user.exception.UserError.NICKNAME_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.PASSWORD_IS_NOT_IN_THE_CORRECT_FORMAT;
+import static com.stylelab.user.exception.UserError.PASSWORD_IS_REQUIRED;
+import static com.stylelab.user.exception.UserError.PHONE_NUMBER_IS_NOT_IN_THE_CORRECT_FORMAT;
+import static com.stylelab.user.exception.UserError.PHONE_NUMBER_IS_REQUIRED;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -41,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class UsersControllerTest {
+public class AuthControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -74,7 +69,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -94,7 +89,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -115,7 +110,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -135,7 +130,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -155,7 +150,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -176,7 +171,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -196,7 +191,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -217,7 +212,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -237,7 +232,7 @@ public class UsersControllerTest {
                     .phoneNumber("01011111111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -258,7 +253,7 @@ public class UsersControllerTest {
                     .phoneNumber("010-11111-111")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -278,7 +273,7 @@ public class UsersControllerTest {
                     .nickname("coby")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signup")
+            mockMvc.perform(post("/v1/auth/signup")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signupRequest)))
                     .andDo(print())
@@ -297,7 +292,7 @@ public class UsersControllerTest {
         public void failureExistsByEmail_01() throws Exception {
             final String email = "test@gmail...com";
 
-            mockMvc.perform(get("/v1/users/check-email")
+            mockMvc.perform(get("/v1/auth/check-email")
                             .param("email", email)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -311,7 +306,7 @@ public class UsersControllerTest {
         public void failureExistsByEmail_02() throws Exception {
             final String email = null;
 
-            mockMvc.perform(get("/v1/users/check-email")
+            mockMvc.perform(get("/v1/auth/check-email")
                             .param("email", email)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -330,7 +325,7 @@ public class UsersControllerTest {
         public void failureExistsByEmail_01() throws Exception {
             final String nickname = "coby!@#!";
 
-            mockMvc.perform(get("/v1/users/check-nickname")
+            mockMvc.perform(get("/v1/auth/check-nickname")
                             .param("nickname", nickname)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -344,7 +339,7 @@ public class UsersControllerTest {
         public void failureExistsByEmail_02() throws Exception {
             final String nickname = null;
 
-            mockMvc.perform(get("/v1/users/check-nickname")
+            mockMvc.perform(get("/v1/auth/check-nickname")
                             .param("nickname", nickname)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
@@ -367,7 +362,7 @@ public class UsersControllerTest {
                     .password("tester!@31241")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signin")
+            mockMvc.perform(post("/v1/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInRequest)))
                     .andDo(print())
@@ -383,7 +378,7 @@ public class UsersControllerTest {
                     .password("tester!@31241")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signin")
+            mockMvc.perform(post("/v1/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInRequest)))
                     .andDo(print())
@@ -396,11 +391,11 @@ public class UsersControllerTest {
         @DisplayName("로그인 실패 - 유효하지 않은 비밀번호인 경우 실패")
         public void failureSignIn_03() throws Exception {
             SignInRequest signInRequest = SignInRequest.builder()
-                    .email("tester@gmail.com")
+                    .email("test@gmail.com")
                     .password("tester")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signin")
+            mockMvc.perform(post("/v1/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInRequest)))
                     .andDo(print())
@@ -413,10 +408,10 @@ public class UsersControllerTest {
         @DisplayName("로그인 실패 - 비밀번호가 null 인 경우 실패")
         public void failureSignIn_04() throws Exception {
             SignInRequest signInRequest = SignInRequest.builder()
-                    .email("tester@gmail.com")
+                    .email("test@gmail.com")
                     .build();
 
-            mockMvc.perform(post("/v1/users/signin")
+            mockMvc.perform(post("/v1/auth/signin")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(signInRequest)))
                     .andDo(print())
@@ -424,133 +419,40 @@ public class UsersControllerTest {
                     .andExpect(jsonPath("$.code").value(PASSWORD_IS_REQUIRED.getCode()))
                     .andExpect(jsonPath("$.message").value(PASSWORD_IS_REQUIRED.getMessage()));
         }
-    }
-
-    @Nested
-    @DisplayName("배송지 등록 테스트")
-    public class CreateUserDeliveryAddressTest {
 
         @Test
-        @Rollback
-        @Transactional
-        @DisplayName("배송지 요청 객체의 검증이 통과하면 배송지 등록에 성공한다.")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void successCreateUserDeliveryAddressTest() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .address("경기도 성남시 분당구 정자일로 95 네이버")
-                    .addressDetail("문앞")
-                    .postalCode("13561")
-                    .addressAliases("네이버")
-                    .defaultDeliveryAddress(false)
+        @DisplayName("로그인 실패 - 존재하는 회원이지만 비밀번호가 유효하지 않은 경우 실패")
+        public void failureSignIn_05() throws Exception {
+            SignInRequest signInRequest = SignInRequest.builder()
+                    .email("test@gmail.com")
+                    .password("test1124!@!#!")
                     .build();
 
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
+            mockMvc.perform(post("/v1/auth/signin")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(signInRequest)))
                     .andDo(print())
-                    .andExpect(status().isNoContent())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value(INVALID_PASSWORD.getCode()))
+                    .andExpect(jsonPath("$.message").value(INVALID_PASSWORD.getMessage()));
+        }
+
+        @Test
+        @DisplayName("로그인 성공")
+        public void successSignIn() throws Exception {
+            SignInRequest signInRequest = SignInRequest.builder()
+                    .email("test@gmail.com")
+                    .password("test1234!@!")
+                    .build();
+
+            mockMvc.perform(post("/v1/auth/signin")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(signInRequest)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
                     .andExpect(jsonPath("$.code").value("20000"))
-                    .andExpect(jsonPath("$.message").value("success"));
-        }
-
-        @Test
-        @DisplayName("배송지 등록 실패 - 배송지 주소가 null 인 경우")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void failureCreateUserDeliveryAddress_01() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .addressDetail("문앞")
-                    .postalCode("13561")
-                    .addressAliases("네이버")
-                    .defaultDeliveryAddress(false)
-                    .build();
-
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(UsersError.DELIVERY_ADDRESS_REQUIRE.getCode()))
-                    .andExpect(jsonPath("$.message").value(UsersError.DELIVERY_ADDRESS_REQUIRE.getMessage()));
-        }
-
-        @Test
-        @DisplayName("배송지 등록 실패 - 배송지 상세 주소가 null 인 경우")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void failureCreateUserDeliveryAddress_02() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .address("경기도 성남시 분당구 정자일로 95 네이버")
-                    .postalCode("13561")
-                    .addressAliases("네이버")
-                    .defaultDeliveryAddress(false)
-                    .build();
-
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(UsersError.DELIVERY_ADDRESS_DETAIL_REQUIRE.getCode()))
-                    .andExpect(jsonPath("$.message").value(UsersError.DELIVERY_ADDRESS_DETAIL_REQUIRE.getMessage()));
-        }
-
-        @Test
-        @DisplayName("배송지 등록 실패 - 우편 번호가 null 인 경우")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void failureCreateUserDeliveryAddress_03() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .address("경기도 성남시 분당구 정자일로 95 네이버")
-                    .addressDetail("문앞")
-                    .addressAliases("네이버")
-                    .defaultDeliveryAddress(false)
-                    .build();
-
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(UsersError.DELIVERY_POSTAL_CODE_REQUIRE.getCode()))
-                    .andExpect(jsonPath("$.message").value(UsersError.DELIVERY_POSTAL_CODE_REQUIRE.getMessage()));
-        }
-
-        @Test
-        @DisplayName("배송지 등록 실패 - 배송지 주소 별칭이 null 인 경우")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void failureCreateUserDeliveryAddress_04() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .address("경기도 성남시 분당구 정자일로 95 네이버")
-                    .addressDetail("문앞")
-                    .postalCode("13561")
-                    .defaultDeliveryAddress(false)
-                    .build();
-
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(UsersError.DELIVERY_ADDRESS_ALIASES_REQUIRE.getCode()))
-                    .andExpect(jsonPath("$.message").value(UsersError.DELIVERY_ADDRESS_ALIASES_REQUIRE.getMessage()));
-        }
-
-        @Test
-        @DisplayName("배송지 등록 실패 - 배송지 기본 주소지 여부가 null 인 경우")
-        @WithAccount(email = "test@gmail.com", role = "ROLE_USER", type = UserType.USER)
-        public void failureCreateUserDeliveryAddress_05() throws Exception {
-            CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest = CreateUserDeliveryAddressRequest.builder()
-                    .address("경기도 성남시 분당구 정자일로 95 네이버")
-                    .addressDetail("문앞")
-                    .postalCode("13561")
-                    .addressAliases("네이버")
-                    .build();
-
-            mockMvc.perform(post("/v1/users/deliveries")
-                            .content(objectMapper.writeValueAsString(createUserDeliveryAddressRequest))
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.code").value(UsersError.DELIVERY_DEFAULT_ADDRESS_REQUIRE.getCode()))
-                    .andExpect(jsonPath("$.message").value(UsersError.DELIVERY_DEFAULT_ADDRESS_REQUIRE.getMessage()));
+                    .andExpect(jsonPath("$.message").value("success"))
+                    .andExpect(jsonPath("$.token").isNotEmpty());
         }
     }
 }

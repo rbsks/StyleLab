@@ -1,7 +1,7 @@
 package com.stylelab.common.security.principal;
 
-import com.stylelab.user.constant.UsersRole;
-import com.stylelab.user.domain.Users;
+import com.stylelab.user.constant.UserRole;
+import com.stylelab.user.domain.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,10 +17,10 @@ import java.util.Collections;
 @AllArgsConstructor
 public class UserPrincipal implements UserDetails {
 
-    private Users users;
+    private Long userId;
     private final String email;
     private final String password;
-    private final UsersRole usersRole;
+    private final UserRole userRole;
     private final Collection<GrantedAuthority> authorities;
 
     @Override
@@ -58,13 +58,13 @@ public class UserPrincipal implements UserDetails {
         return true;
     }
 
-    public static UserPrincipal create(Users users) {
+    public static UserPrincipal create(User user) {
         return new UserPrincipal(
-                Users.createUser(users.getUserId()),
-                users.getEmail(),
-                users.getPassword(),
-                users.getRole(),
-                Collections.singletonList(new SimpleGrantedAuthority(users.getRole().name()))
+                user.userId(),
+                user.email(),
+                user.password(),
+                user.role(),
+                Collections.singletonList(new SimpleGrantedAuthority(user.role().name()))
         );
     }
 }

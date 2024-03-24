@@ -3,7 +3,7 @@ package com.stylelab.common.configuration;
 import com.stylelab.common.exception.ConstraintViolationErrorMap;
 import com.stylelab.common.exception.ConstraintViolationErrorType;
 import com.stylelab.store.exception.StoreError;
-import com.stylelab.user.exception.UsersError;
+import com.stylelab.user.exception.UserError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +20,7 @@ public class ConstrainViolationErrorConfiguration {
     @Bean
     public ConstraintViolationErrorMap serviceErrorMap() {
         Map<String, ConstraintViolationErrorType> errorHandlerMap = Map.of(
-                UsersError.class.getName(), USERS_ERROR,
+                UserError.class.getName(), USERS_ERROR,
                 StoreError.class.getName(), STORE_ERROR
         );
 
