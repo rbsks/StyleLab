@@ -1,4 +1,4 @@
-package com.stylelab.user.presentation.response;
+package com.stylelab.auth.presentation.response;
 
 import com.stylelab.user.exception.UserException;
 import org.junit.jupiter.api.DisplayName;

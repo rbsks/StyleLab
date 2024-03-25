@@ -79,18 +79,20 @@ public class WebSecurityConfiguration {
                         authorizeHttpRequests
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(
-                                        "/**/auth/signup",
-                                        "/**/auth/check-email",
-                                        "/**/auth/check-nickname",
-                                        "/**/auth/signin"
+                                        "/**/users/signup",
+                                        "/**/users/check-email",
+                                        "/**/users/check-nickname"
+                                ).permitAll()
+                                .requestMatchers(
+                                        "/**/auth/users/signin",
+                                        "/**/auth/stores/signin"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/**/categories",
                                         "/**/categories/{productCategoryPath}"
                                 ).permitAll()
                                 .requestMatchers(
-                                        "/**/stores/apply",
-                                        "/**/stores/signin"
+                                        "/**/stores/apply"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/**/products",

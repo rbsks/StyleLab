@@ -1,14 +1,11 @@
 package com.stylelab.common.security.service;
 
-import com.stylelab.common.exception.ServiceException;
 import com.stylelab.common.security.principal.UserPrincipal;
 import com.stylelab.user.domain.User;
 import com.stylelab.user.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import static com.stylelab.common.exception.ServiceError.UNAUTHORIZED;
 
 @Component
 @RequiredArgsConstructor

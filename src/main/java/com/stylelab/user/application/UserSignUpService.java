@@ -1,10 +1,7 @@
 package com.stylelab.user.application;
 
 import com.stylelab.common.exception.ServiceException;
-import com.stylelab.common.security.constant.UserType;
 import com.stylelab.common.security.jwt.JwtTokenProvider;
-import com.stylelab.user.domain.User;
-import com.stylelab.user.exception.UserError;
 import com.stylelab.user.exception.UserException;
 import com.stylelab.user.infrastructure.UserMapper;
 import com.stylelab.user.infrastructure.UserRepository;
@@ -20,7 +17,7 @@ import static com.stylelab.user.exception.UserError.USERS_SAVE_FAIL;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class UserSignUpService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -53,16 +50,5 @@ public class AuthService {
     public boolean existsByNickname(final String nickname) {
 
         return userRepository.existsByNickname(nickname);
-    }
-
-    public String signIn(final SignInUser signInUser) {
-
-        User user = userRepository.findByEmail(signInUser.email());
-
-        if (!passwordEncoder.matches(signInUser.password(), user.password())) {
-            throw new UserException(UserError.INVALID_PASSWORD);
-        }
-
-        return jwtTokenProvider.createAuthToken(user.email(), user.role().name(), UserType.USER);
     }
 }
