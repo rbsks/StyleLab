@@ -1,4 +1,4 @@
-package com.stylelab.user.application;
+package com.stylelab.auth.application;
 
 public record SignInUser(
         String email,

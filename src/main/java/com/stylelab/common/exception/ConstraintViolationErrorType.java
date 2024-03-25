@@ -1,5 +1,6 @@
 package com.stylelab.common.exception;
 
+import com.stylelab.auth.exception.AuthError;
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.store.exception.StoreError;
 import com.stylelab.user.exception.UserError;
@@ -28,6 +29,13 @@ public enum ConstraintViolationErrorType {
         @Override
         public ProductError of(String error) {
             return ProductError.of(error);
+        }
+    },
+
+    AUTH_ERROR {
+        @Override
+        public AuthError of(String error) {
+            return AuthError.of(error);
         }
     };
 

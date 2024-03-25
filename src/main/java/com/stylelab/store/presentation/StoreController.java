@@ -8,10 +8,8 @@ import com.stylelab.store.application.StoreFacade;
 import com.stylelab.store.exception.StoreError;
 import com.stylelab.store.presentation.request.ApplyStoreRequest;
 import com.stylelab.store.presentation.request.CreateStoreProductRequest;
-import com.stylelab.store.presentation.request.SignInRequest;
 import com.stylelab.store.presentation.response.CreateStoreProductResponse;
 import com.stylelab.store.presentation.response.ImageUploadResponse;
-import com.stylelab.store.presentation.response.SignInResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -43,11 +41,6 @@ public class StoreController {
     public ResponseEntity<ApiResponse<Void>> applyStore(@RequestBody @Valid final ApplyStoreRequest applyStoreRequest) {
         storeFacade.applyStore(applyStoreRequest);
         return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.CREATED);
-    }
-
-    @PostMapping("/signin")
-    public ResponseEntity<ApiResponse<SignInResponse>> sigIn(@RequestBody @Valid final SignInRequest signInRequest) {
-        return ResponseEntity.ok(ApiResponse.createApiResponse(storeFacade.signIn(signInRequest)));
     }
 
     @PostMapping("/{storeId}/products/images/{imageType}")

@@ -1,6 +1,5 @@
 package com.stylelab.store.application;
 
-import com.stylelab.common.security.constant.UserType;
 import com.stylelab.common.security.jwt.JwtTokenProvider;
 import com.stylelab.common.security.principal.StorePrincipal;
 import com.stylelab.common.security.service.StoreLoadUserByUsernameStrategy;
@@ -13,15 +12,11 @@ import com.stylelab.store.exception.StoreError;
 import com.stylelab.store.exception.StoreException;
 import com.stylelab.store.presentation.request.ApplyStoreRequest;
 import com.stylelab.store.presentation.request.CreateStoreProductRequest;
-import com.stylelab.store.presentation.request.SignInRequest;
 import com.stylelab.store.presentation.response.CreateStoreProductResponse;
 import com.stylelab.store.presentation.response.ImageUploadResponse;
-import com.stylelab.store.presentation.response.SignInResponse;
 import com.stylelab.store.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,13 +49,6 @@ public class StoreFacade {
 
         store.addStoreStaff(storeStaff);
         storeService.applyStore(store);
-    }
-
-    public SignInResponse signIn(final SignInRequest signInRequest) {
-        Authentication authenticationRequest =
-                UsernamePasswordAuthenticationToken.unauthenticated(signInRequest.email(), signInRequest.password());
-        StorePrincipal storePrincipal = (StorePrincipal) storeLoadUserByUsernameStrategy.loadUserByUsername((String) authenticationRequest.getPrincipal());
-        return SignInResponse.createResponse(jwtTokenProvider.createAuthToken(storePrincipal.getEmail(), storePrincipal.getStoreStaffRole().name(), UserType.STORE));
     }
 
     public ImageUploadResponse uploadMultipartFiles(
