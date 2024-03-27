@@ -1,11 +1,9 @@
-package com.stylelab.file.service;
+package com.stylelab.storage.application;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.stylelab.file.constant.ExtensionType;
-import com.stylelab.file.dto.UploadFile;
-import com.stylelab.file.dto.UploadResult;
+import com.stylelab.storage.constant.ExtensionType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

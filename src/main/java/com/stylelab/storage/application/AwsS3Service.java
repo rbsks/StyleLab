@@ -1,11 +1,9 @@
-package com.stylelab.file.service;
+package com.stylelab.storage.application;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.stylelab.file.dto.UploadFile;
-import com.stylelab.file.dto.UploadResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,12 +12,12 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.stylelab.file.dto.UploadResult.FailureFilename;
-import static com.stylelab.file.dto.UploadResult.SuccessImageUrl;
+import static com.stylelab.storage.application.UploadResult.FailureFilename;
+import static com.stylelab.storage.application.UploadResult.SuccessImageUrl;
 
 @Slf4j
 @Service
-public class AwsS3Service implements FileService {
+public class AwsS3Service {
 
 
     private final String bucket;
@@ -31,7 +29,6 @@ public class AwsS3Service implements FileService {
         this.amazonS3Client = amazonS3Client;
     }
 
-    @Override
     public UploadResult uploadMultipartFiles(final List<UploadFile> uploadFiles) {
 
         List<SuccessImageUrl> imageUrls = new ArrayList<>();

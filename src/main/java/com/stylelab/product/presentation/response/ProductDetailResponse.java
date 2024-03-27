@@ -1,8 +1,8 @@
 package com.stylelab.product.presentation.response;
 
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.ProductDetailImage;
+import com.stylelab.storage.constant.ImageType;
 
 import java.util.List;
 

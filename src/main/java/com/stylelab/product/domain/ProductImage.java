@@ -1,9 +1,9 @@
 package com.stylelab.product.domain;
 
 import com.stylelab.common.base.BaseEntity;
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
+import com.stylelab.storage.constant.ImageType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

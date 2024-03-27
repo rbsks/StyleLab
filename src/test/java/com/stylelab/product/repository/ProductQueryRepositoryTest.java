@@ -2,13 +2,14 @@ package com.stylelab.product.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.repository.dto.ProductCollection;
 import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.QProductCollection;
 import com.stylelab.product.repository.dto.QProductDetail;
 import com.stylelab.product.repository.dto.QProductDetailImage;
+import com.stylelab.storage.constant.ImageType;
 import com.stylelab.store.constant.ApproveType;
+import com.stylelab.store.infrastructure.QStoreEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,8 +24,7 @@ import java.util.List;
 import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
 import static com.stylelab.product.domain.QProduct.product;
 import static com.stylelab.product.domain.QProductImage.productImage;
-import static com.stylelab.store.domain.QStore.store;
-
+import static com.stylelab.store.infrastructure.QStoreEntity.storeEntity;
 
 @Slf4j
 @SpringBootTest
@@ -224,9 +224,9 @@ public class ProductQueryRepositoryTest {
                 .select(
                         new QProductDetail(
                                 product.productId,
-                                store.storeId,
-                                store.name,
-                                store.brand,
+                                storeEntity.storeId,
+                                storeEntity.name,
+                                storeEntity.brand,
                                 productCategoryEntity.categoryPath,
                                 productCategoryEntity.categoryName,
                                 product.name,
@@ -243,12 +243,12 @@ public class ProductQueryRepositoryTest {
                         )
                 )
                 .from(product)
-                .innerJoin(store).on(product.store.storeId.eq(store.storeId))
+                .innerJoin(storeEntity).on(product.storeEntity.storeId.eq(storeEntity.storeId))
                 .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
                         product.productId.eq(productId),
                         product.deleted.eq(false),
-                        store.approveType.eq(ApproveType.APPROVE)
+                        storeEntity.approveType.eq(ApproveType.APPROVE)
                 )
                 .fetchOne();
     }

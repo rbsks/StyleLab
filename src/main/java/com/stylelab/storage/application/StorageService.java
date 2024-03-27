@@ -1,12 +1,9 @@
-package com.stylelab.file.application;
+package com.stylelab.storage.application;
 
-import com.stylelab.file.constant.ExtensionType;
-import com.stylelab.file.constant.ImageType;
-import com.stylelab.file.dto.UploadFile;
-import com.stylelab.file.dto.UploadResult;
-import com.stylelab.file.exception.FileError;
-import com.stylelab.file.exception.FileException;
-import com.stylelab.file.service.FileService;
+import com.stylelab.storage.constant.ExtensionType;
+import com.stylelab.storage.constant.ImageType;
+import com.stylelab.storage.exception.StorageError;
+import com.stylelab.storage.exception.StorageException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,9 +19,9 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FileFacade {
+public class StorageService {
 
-    private final FileService fileService;
+    private final AwsS3Service awsS3Service;
 
     public UploadResult uploadMultipartFiles(final ImageType imageType, final List<MultipartFile> multipartFiles) {
         validationMultipartFiles(imageType, multipartFiles);
@@ -37,37 +34,37 @@ public class FileFacade {
             uploadFiles.add(UploadFile.createUploadFile(multipartFile, uploadFilename));
         }
 
-        return fileService.uploadMultipartFiles(uploadFiles);
+        return awsS3Service.uploadMultipartFiles(uploadFiles);
     }
 
     private void validationMultipartFiles(final ImageType imageType, final List<MultipartFile> multipartFiles) {
         if (imageType == null) {
-            throw new FileException(FileError.IMAGE_TYPE_REQUIRE);
+            throw new StorageException(StorageError.IMAGE_TYPE_REQUIRE);
         }
         if (ObjectUtils.isEmpty(multipartFiles)) {
-            throw new FileException(FileError.FILE_OBJECT_REQUIRE);
+            throw new StorageException(StorageError.FILE_OBJECT_REQUIRE);
         }
 
         if (multipartFiles.size() > imageType.getMaxImageCount()) {
-            throw new FileException(
-                    FileError.EXCEED_MAX_IMAGE_COUNT,
-                    String.format(FileError.EXCEED_MAX_IMAGE_COUNT.getMessage(), imageType, imageType.getMaxImageCount())
+            throw new StorageException(
+                    StorageError.EXCEED_MAX_IMAGE_COUNT,
+                    String.format(StorageError.EXCEED_MAX_IMAGE_COUNT.getMessage(), imageType, imageType.getMaxImageCount())
             );
         }
 
         for (MultipartFile multipartFile : multipartFiles) {
             if (multipartFile.isEmpty()) {
-                throw new FileException(FileError.FILE_SIZE_CANNOT_LESS_THEN_ZERO);
+                throw new StorageException(StorageError.FILE_SIZE_CANNOT_LESS_THEN_ZERO);
             }
             if (!StringUtils.hasText(multipartFile.getOriginalFilename())) {
-                throw new FileException(FileError.FILE_ORIGIN_NAME_REQUIRE);
+                throw new StorageException(StorageError.FILE_ORIGIN_NAME_REQUIRE);
             }
 
             String originalFilename = multipartFile.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
             if (!StringUtils.hasText(extension) || !validationExtension(extension)) {
                 log.error("originFilename:{} , extension: {}", originalFilename, extension);
-                throw new FileException(FileError.INVALID_FORMAT_FILE);
+                throw new StorageException(StorageError.INVALID_FORMAT_FILE);
             }
         }
     }

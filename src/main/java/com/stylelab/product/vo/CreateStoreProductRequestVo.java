@@ -1,10 +1,10 @@
 package com.stylelab.product.vo;
 
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.domain.Product;
 import com.stylelab.product.domain.ProductImage;
 import com.stylelab.product.domain.ProductOption1;
 import com.stylelab.product.domain.ProductOption2;
+import com.stylelab.storage.constant.ImageType;
 import lombok.Builder;
 
 import java.util.List;

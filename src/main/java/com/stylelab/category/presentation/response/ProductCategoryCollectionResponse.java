@@ -1,7 +1,7 @@
 package com.stylelab.category.presentation.response;
 
 import com.stylelab.category.infrastructure.dto.ProductCategoryDto;
-import com.stylelab.file.constant.ImageType;
+import com.stylelab.storage.constant.ImageType;
 
 import java.time.format.DateTimeFormatter;
 

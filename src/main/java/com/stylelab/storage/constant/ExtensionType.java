@@ -1,4 +1,4 @@
-package com.stylelab.file.constant;
+package com.stylelab.storage.constant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.stylelab.file.dto;
+package com.stylelab.storage.application;
 
 import org.springframework.web.multipart.MultipartFile;
 

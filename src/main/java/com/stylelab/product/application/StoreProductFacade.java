@@ -1,6 +1,5 @@
 package com.stylelab.product.application;
 
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.domain.Product;
 import com.stylelab.product.domain.ProductImage;
 import com.stylelab.product.domain.ProductOption1;
@@ -9,8 +8,8 @@ import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
 import com.stylelab.product.service.StoreProductService;
 import com.stylelab.product.vo.CreateStoreProductRequestVo;
-import com.stylelab.product.vo.CreateStoreProductResponseVo;
-import com.stylelab.store.domain.Store;
+import com.stylelab.storage.constant.ImageType;
+import com.stylelab.store.infrastructure.StoreEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,7 @@ public class StoreProductFacade {
 
     private final StoreProductService storeProductService;
 
-    public CreateStoreProductResponseVo createStoreProduct(final Long storeId, final CreateStoreProductRequestVo createStoreProductRequestVo) {
+    public Long createStoreProduct(final Long storeId, final CreateStoreProductRequestVo createStoreProductRequestVo) {
         validationCreateStoreProductRequest(storeId, createStoreProductRequestVo);
 
         Product product = createProduct(storeId, createStoreProductRequestVo.productRequest());
@@ -45,7 +44,7 @@ public class StoreProductFacade {
             product.additionalProductOption1(getProductOption1s(createStoreProductRequestVo));
         }
 
-        return CreateStoreProductResponseVo.createResponse(storeProductService.createStoreProduct(product));
+        return storeProductService.createStoreProduct(product);
     }
 
     private void validationCreateStoreProductRequest(Long storeId, CreateStoreProductRequestVo createStoreProductRequestVo) {
@@ -238,7 +237,7 @@ public class StoreProductFacade {
     private Product createProduct(Long storeId, ProductRequest productRequest) {
         Product product = ProductRequest.createProduct(productRequest);
         product.calculateDiscountPrice();
-        product.addStore(Store.createStore(storeId));
+        product.addStore(StoreEntity.createStore(storeId));
 
         return product;
     }
