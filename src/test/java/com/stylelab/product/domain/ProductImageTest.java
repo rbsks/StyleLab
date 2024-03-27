@@ -1,8 +1,8 @@
 package com.stylelab.product.domain;
 
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
+import com.stylelab.storage.constant.ImageType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

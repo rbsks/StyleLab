@@ -3,7 +3,7 @@ package com.stylelab.product.domain;
 import com.stylelab.common.base.BaseEntity;
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
-import com.stylelab.store.domain.Store;
+import com.stylelab.store.infrastructure.StoreEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,7 +39,7 @@ public class Product extends BaseEntity  {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id")
-    private Store store;
+    private StoreEntity storeEntity;
 
     @Column(nullable = false)
     private String productCategoryPath;
@@ -101,12 +101,12 @@ public class Product extends BaseEntity  {
         this.discountPrice = Math.max(totalDiscountedPrice, 3000);
     }
 
-    public void addStore(Store store) {
-        if (store == null) {
+    public void addStore(StoreEntity storeEntity) {
+        if (storeEntity == null) {
             throw new ProductException(ProductError.STORE_ID_REQUIRE, ProductError.STORE_ID_REQUIRE.getMessage());
         }
 
-        this.store = store;
+        this.storeEntity = storeEntity;
     }
 
     public void additionalProductOption1(List<ProductOption1> productOption1s) {

@@ -23,7 +23,6 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.stylelab.user.exception.UserError.CONFIRM_PASSWORD_IS_REQUIRED;
 import static com.stylelab.user.exception.UserError.EMAIL_IS_NOT_IN_THE_CORRECT_FORMAT;
 import static com.stylelab.user.exception.UserError.EMAIL_IS_REQUIRED;
-import static com.stylelab.user.exception.UserError.INVALID_PASSWORD;
 import static com.stylelab.user.exception.UserError.NAME_IS_NOT_IN_THE_CORRECT_FORMAT;
 import static com.stylelab.user.exception.UserError.NAME_IS_REQUIRED;
 import static com.stylelab.user.exception.UserError.NICKNAME_IS_NOT_IN_THE_CORRECT_FORMAT;

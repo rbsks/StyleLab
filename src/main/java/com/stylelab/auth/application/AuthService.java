@@ -1,11 +1,10 @@
 package com.stylelab.auth.application;
 
 import com.stylelab.auth.exception.AuthError;
-import com.stylelab.common.exception.ServiceException;
 import com.stylelab.common.security.constant.UserType;
 import com.stylelab.common.security.jwt.JwtTokenProvider;
 import com.stylelab.store.domain.StoreStaff;
-import com.stylelab.store.repository.StoreStaffRepository;
+import com.stylelab.store.infrastructure.StoreStaffRepository;
 import com.stylelab.user.domain.User;
 import com.stylelab.user.exception.UserException;
 import com.stylelab.user.infrastructure.UserRepository;
@@ -13,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import static com.stylelab.common.exception.ServiceError.UNAUTHORIZED;
 
 @Slf4j
 @Service
@@ -37,12 +34,11 @@ public class AuthService {
 
     public String storeSignIn(final SignInUser signInUser) {
 
-        StoreStaff storeStaff = storeStaffRepository.findByEmail(signInUser.email())
-                .orElseThrow(() -> new ServiceException(UNAUTHORIZED, UNAUTHORIZED.getMessage()));
+        StoreStaff storeStaff = storeStaffRepository.findByEmail(signInUser.email());
 
-        validationPassword(signInUser.password(), storeStaff.getPassword());
+        validationPassword(signInUser.password(), storeStaff.password());
 
-        return jwtTokenProvider.createAuthToken(storeStaff.getEmail(), storeStaff.getStoreStaffRole().name(), UserType.STORE);
+        return jwtTokenProvider.createAuthToken(storeStaff.email(), storeStaff.storeStaffRole().name(), UserType.STORE);
     }
 
     private void validationPassword(String rawPassword, String encodedPassword) {

@@ -1,6 +1,6 @@
 package com.stylelab.category.infrastructure.dto;
 
-import com.stylelab.file.constant.ImageType;
+import com.stylelab.storage.constant.ImageType;
 
 import java.time.LocalDateTime;
 

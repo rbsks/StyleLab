@@ -1,10 +1,6 @@
 package com.stylelab.store.presentation.request;
 
 
-import com.stylelab.store.constant.ApproveType;
-import com.stylelab.store.constant.StoreStaffRole;
-import com.stylelab.store.domain.Store;
-import com.stylelab.store.domain.StoreStaff;
 import com.stylelab.store.exception.StoreError;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -38,18 +34,6 @@ public record ApplyStoreRequest(
             String postalCode,
             @NotBlank(message = "BUSINESS_LICENSE_NUMBER_REQUIRE", payload = StoreError.class)
             String businessLicenseNumber) {
-
-        public static Store toEntity(StoreRequest storeRequest) {
-            return Store.builder()
-                    .brand(storeRequest.brand)
-                    .name(storeRequest.name)
-                    .address(storeRequest.address)
-                    .addressDetail(storeRequest.addressDetail)
-                    .postalCode(storeRequest.postalCode)
-                    .businessLicenseNumber(storeRequest.businessLicenseNumber)
-                    .approveType(ApproveType.APPROVE)
-                    .build();
-        }
 
         @Override
         public String toString() {
@@ -86,17 +70,6 @@ public record ApplyStoreRequest(
             @NotBlank(message = "STORE_STAFF_PHONE_NUMBER_REQUIRE", payload = StoreError.class)
             @Pattern(regexp = "^01(?:0|1|[6-9])(?:\\d{3}|\\d{4})\\d{4}$", message = "PHONE_NUMBER_IS_NOT_IN_THE_CORRECT_FORMAT", payload = StoreError.class)
             String phoneNumber) {
-
-        public static StoreStaff toEntity(StoreStaffRequest storeStaffRequest, String encodePassword) {
-            return StoreStaff.builder()
-                    .email(storeStaffRequest.email)
-                    .password(encodePassword)
-                    .name(storeStaffRequest.name)
-                    .nickname(storeStaffRequest.nickname)
-                    .phoneNumber(storeStaffRequest.phoneNumber)
-                    .storeStaffRole(StoreStaffRole.ROLE_STORE_OWNER)
-                    .build();
-        }
 
         @Override
         public String toString() {

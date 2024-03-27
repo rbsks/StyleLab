@@ -3,13 +3,13 @@ package com.stylelab.product.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.repository.dto.ProductCollection;
 import com.stylelab.product.repository.dto.ProductDetail;
 import com.stylelab.product.repository.dto.ProductDetailImage;
 import com.stylelab.product.repository.dto.QProductCollection;
 import com.stylelab.product.repository.dto.QProductDetail;
 import com.stylelab.product.repository.dto.QProductDetailImage;
+import com.stylelab.storage.constant.ImageType;
 import com.stylelab.store.constant.ApproveType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,7 @@ import java.util.Optional;
 import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
 import static com.stylelab.product.domain.QProduct.product;
 import static com.stylelab.product.domain.QProductImage.productImage;
-import static com.stylelab.store.domain.QStore.store;
+import static com.stylelab.store.infrastructure.QStoreEntity.storeEntity;
 
 @Repository
 @RequiredArgsConstructor
@@ -83,14 +83,15 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
 
     @Override
     public Optional<ProductDetail> findByProductId(final Long productId) {
+
         return Optional.ofNullable(
                 jpaQueryFactory
                         .select(
                                 new QProductDetail(
                                         product.productId,
-                                        store.storeId,
-                                        store.name,
-                                        store.brand,
+                                        storeEntity.storeId,
+                                        storeEntity.name,
+                                        storeEntity.brand,
                                         productCategoryEntity.categoryPath,
                                         productCategoryEntity.categoryName,
                                         product.name,
@@ -107,12 +108,12 @@ public class ProductQueryRepositoryImpl implements ProductQueryRepository {
                                 )
                         )
                         .from(product)
-                        .innerJoin(store).on(product.store.storeId.eq(store.storeId))
+                        .innerJoin(storeEntity).on(product.storeEntity.storeId.eq(storeEntity.storeId))
                         .innerJoin(productCategoryEntity).on(product.productCategoryPath.eq(productCategoryEntity.categoryPath))
                         .where(
                                 product.productId.eq(productId),
                                 product.deleted.eq(false),
-                                store.approveType.eq(ApproveType.APPROVE)
+                                storeEntity.approveType.eq(ApproveType.APPROVE)
                         )
                         .fetchOne()
         );

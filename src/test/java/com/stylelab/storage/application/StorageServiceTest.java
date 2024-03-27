@@ -1,10 +1,8 @@
-package com.stylelab.file.application;
+package com.stylelab.storage.application;
 
-import com.stylelab.file.constant.ImageType;
-import com.stylelab.file.dto.UploadResult;
-import com.stylelab.file.exception.FileError;
-import com.stylelab.file.exception.FileException;
-import com.stylelab.file.service.FileService;
+import com.stylelab.storage.constant.ImageType;
+import com.stylelab.storage.exception.StorageError;
+import com.stylelab.storage.exception.StorageException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,13 +26,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class FileFacadeTest {
+public class StorageServiceTest {
 
     @Mock
-    private FileService fileService;
+    private AwsS3Service awsS3Service;
 
     @InjectMocks
-    private FileFacade fileFacade;
+    private StorageService storageService;
 
     @Nested
     @DisplayName("이미지 업로드 테스트")
@@ -47,13 +45,13 @@ public class FileFacadeTest {
             List<MultipartFile> multipartFiles = null;
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.FILE_OBJECT_REQUIRE.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.FILE_OBJECT_REQUIRE.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -65,13 +63,13 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.FILE_SIZE_CANNOT_LESS_THEN_ZERO.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.FILE_SIZE_CANNOT_LESS_THEN_ZERO.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -83,13 +81,13 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.FILE_ORIGIN_NAME_REQUIRE.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.FILE_ORIGIN_NAME_REQUIRE.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -101,13 +99,13 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.INVALID_FORMAT_FILE.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.INVALID_FORMAT_FILE.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -119,13 +117,13 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(null, multipartFiles));
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(null, multipartFiles));
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.IMAGE_TYPE_REQUIRE.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.IMAGE_TYPE_REQUIRE.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -138,14 +136,14 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
-            System.out.println(fileException.getMessage());
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_MAIN, multipartFiles));
+            System.out.println(storageException.getMessage());
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.EXCEED_MAX_IMAGE_COUNT.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.EXCEED_MAX_IMAGE_COUNT.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -162,14 +160,14 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_SUB, multipartFiles));
-            System.out.println(fileException.getMessage());
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_SUB, multipartFiles));
+            System.out.println(storageException.getMessage());
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.EXCEED_MAX_IMAGE_COUNT.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.EXCEED_MAX_IMAGE_COUNT.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -192,14 +190,14 @@ public class FileFacadeTest {
             );
 
             // when
-            FileException fileException = assertThrows(FileException.class,
-                    () -> fileFacade.uploadMultipartFiles(ImageType.PRODUCT_DESCRIPTION, multipartFiles));
-            System.out.println(fileException.getMessage());
+            StorageException storageException = assertThrows(StorageException.class,
+                    () -> storageService.uploadMultipartFiles(ImageType.PRODUCT_DESCRIPTION, multipartFiles));
+            System.out.println(storageException.getMessage());
 
             // then
-            verify(fileService, times(0))
+            verify(awsS3Service, times(0))
                     .uploadMultipartFiles(anyList());
-            assertEquals(FileError.EXCEED_MAX_IMAGE_COUNT.getCode(), fileException.getServiceError().getCode());
+            assertEquals(StorageError.EXCEED_MAX_IMAGE_COUNT.getCode(), storageException.getServiceError().getCode());
         }
 
         @Test
@@ -214,14 +212,14 @@ public class FileFacadeTest {
                     Collections.singletonList(UploadResult.SuccessImageUrl.createSuccessImageUrl("bucket/products/mock_file.jpeg")),
                     Collections.singletonList(UploadResult.FailureFilename.createFailureFilename("bucket/products/mock_fail_file.jpeg"))
             );
-            given(fileService.uploadMultipartFiles(anyList()))
+            given(awsS3Service.uploadMultipartFiles(anyList()))
                     .willReturn(uploadResult);
 
             // when
-            UploadResult result = fileFacade.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_SUB, multipartFiles);
+            UploadResult result = storageService.uploadMultipartFiles(ImageType.PRODUCT_ENTRY_SUB, multipartFiles);
 
             // then
-            verify(fileService, times(1))
+            verify(awsS3Service, times(1))
                     .uploadMultipartFiles(anyList());
             assertEquals(uploadResult.imageUrls().get(0).imageUrl(), result.imageUrls().get(0).imageUrl());
             assertEquals(uploadResult.failureFilenames().get(0).originFilename(), result.failureFilenames().get(0).originFilename());

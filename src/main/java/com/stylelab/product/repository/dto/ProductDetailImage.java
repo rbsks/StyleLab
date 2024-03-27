@@ -1,7 +1,7 @@
 package com.stylelab.product.repository.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
-import com.stylelab.file.constant.ImageType;
+import com.stylelab.storage.constant.ImageType;
 
 public record ProductDetailImage(
         Long productImageId,

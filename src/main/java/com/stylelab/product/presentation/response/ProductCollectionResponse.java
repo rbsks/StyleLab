@@ -1,7 +1,7 @@
 package com.stylelab.product.presentation.response;
 
-import com.stylelab.file.constant.ImageType;
 import com.stylelab.product.repository.dto.ProductCollection;
+import com.stylelab.storage.constant.ImageType;
 
 public record ProductCollectionResponse(
         Long productId,
