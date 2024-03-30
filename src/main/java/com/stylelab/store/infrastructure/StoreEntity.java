@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
@@ -25,6 +26,7 @@ import java.util.List;
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
+@Builder
 @Entity(name = "stores")
 public class StoreEntity extends BaseEntity  {
 
@@ -61,24 +63,12 @@ public class StoreEntity extends BaseEntity  {
         this.storeId = storeId;
     }
 
-    public StoreEntity(
-            String brand, String name, String address, String addressDetail, String postalCode,
-            String businessLicenseNumber, ApproveType approveType) {
-        this.brand = brand;
-        this.name = name;
-        this.address = address;
-        this.addressDetail = addressDetail;
-        this.postalCode = postalCode;
-        this.businessLicenseNumber = businessLicenseNumber;
-        this.approveType = approveType;
-    }
-
     public void addStoreStaff(StoreStaffEntity storeStaff) {
         storeStaff.addStore(this);
         this.storeStaffs.add(storeStaff);
     }
 
-    public static StoreEntity createStore(Long storeId) {
+    public static StoreEntity of(Long storeId) {
         return new StoreEntity(storeId);
     }
 }

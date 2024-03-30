@@ -1,7 +1,9 @@
 package com.stylelab.store.domain;
 
 import com.stylelab.store.constant.ApproveType;
+import lombok.Builder;
 
+@Builder
 public record Store(
         Long storeId,
         String brand,

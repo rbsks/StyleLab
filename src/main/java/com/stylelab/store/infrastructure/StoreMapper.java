@@ -1,7 +1,5 @@
 package com.stylelab.store.infrastructure;
 
-import com.stylelab.store.constant.ApproveType;
-import com.stylelab.store.constant.StoreStaffRole;
 import com.stylelab.store.domain.Store;
 import com.stylelab.store.domain.StoreStaff;
 import org.springframework.stereotype.Component;
@@ -9,72 +7,62 @@ import org.springframework.stereotype.Component;
 @Component
 public class StoreMapper {
 
-    public StoreEntity toStoreEntity(
-            String brand, String name, String address, String addressDetail,
-            String postalCode, String businessLicenseNumber, ApproveType approveType) {
+    public StoreEntity mapStoreToEntity(Store store) {
 
-        return new StoreEntity(
-                brand, name, address, addressDetail, postalCode, businessLicenseNumber, approveType
-        );
+        return StoreEntity.builder()
+                .storeId(store.storeId())
+                .brand(store.brand())
+                .name(store.name())
+                .address(store.address())
+                .addressDetail(store.addressDetail())
+                .postalCode(store.postalCode())
+                .businessLicenseNumber(store.businessLicenseNumber())
+                .approveType(store.approveType())
+                .build();
     }
 
-    public StoreEntity toStoreEntity(Store store) {
+    public StoreStaffEntity mapStoreStaffToEntity(StoreStaff storeStaff) {
 
-        return new StoreEntity(
-                store.brand(), store.name(), store.address(), store.addressDetail(),
-                store.postalCode(), store.businessLicenseNumber(), store.approveType()
-        );
+        return StoreStaffEntity.builder()
+                .store(this.mapStoreToEntity(storeStaff.store()))
+                .email(storeStaff.email())
+                .password(storeStaff.password())
+                .name(storeStaff.name())
+                .nickname(storeStaff.nickname())
+                .phoneNumber(storeStaff.phoneNumber())
+                .storeStaffRole(storeStaff.storeStaffRole())
+                .withdrawal(storeStaff.withdrawal())
+                .withdrawalAt(storeStaff.withdrawalAt())
+                .build();
     }
 
-    public StoreStaffEntity toStoreStaffEntity(
-            StoreEntity storeEntity, String email, String encodePassword,
-            String name, String nickname, String phoneNumber, StoreStaffRole storeStaffRole) {
+    public Store mapStoreEntityToDomain(StoreEntity storeEntity) {
 
-        return new StoreStaffEntity(
-                storeEntity, email, encodePassword, name, nickname, phoneNumber, storeStaffRole, false, null
-        );
+        return Store.builder()
+                .storeId(storeEntity.getStoreId())
+                .brand(storeEntity.getBrand())
+                .name(storeEntity.getName())
+                .address(storeEntity.getAddress())
+                .addressDetail(storeEntity.getAddressDetail())
+                .postalCode(storeEntity.getPostalCode())
+                .businessLicenseNumber(storeEntity.getBusinessLicenseNumber())
+                .approveType(storeEntity.getApproveType())
+                .build();
     }
 
-    public StoreStaffEntity toStoreStaffEntity(StoreStaff storeStaff) {
 
-        return new StoreStaffEntity(
-                StoreEntity.createStore(storeStaff.store().storeId()), storeStaff.email(), storeStaff.password(), storeStaff.name(),
-                storeStaff.nickname(), storeStaff.phoneNumber(), storeStaff.storeStaffRole(), storeStaff.withdrawal(), storeStaff.withdrawalAt()
-        );
-    }
+    public StoreStaff mapStoreStaffEntityToDomain(StoreStaffEntity storeStaffEntity) {
 
-    public Store toStore(StoreEntity storeEntity) {
-
-        return new Store(
-                storeEntity.getStoreId(), storeEntity.getBrand(), storeEntity.getName(), storeEntity.getAddress(),
-                storeEntity.getAddressDetail(), storeEntity.getPostalCode(), storeEntity.getBusinessLicenseNumber(), storeEntity.getApproveType()
-        );
-    }
-
-    public Store saveStore(
-            String brand, String name, String address, String addressDetail,
-            String postalCode, String businessLicenseNumber, ApproveType approveType) {
-
-        return new Store(
-                null, brand, name, address, addressDetail, postalCode, businessLicenseNumber, approveType
-        );
-    }
-
-    public StoreStaff toStoreStaff(StoreStaffEntity storeStaffEntity) {
-
-        return new StoreStaff(
-                storeStaffEntity.getStoreStaffId(), this.toStore(storeStaffEntity.getStore()), storeStaffEntity.getEmail(),
-                storeStaffEntity.getPassword(), storeStaffEntity.getName(), storeStaffEntity.getNickname(), storeStaffEntity.getPhoneNumber(),
-                storeStaffEntity.getStoreStaffRole(), storeStaffEntity.isWithdrawal(), storeStaffEntity.getWithdrawalAt()
-        );
-    }
-
-    public StoreStaff saveStoreStaff(
-            Store store, String email, String encodePassword,
-            String name, String nickname, String phoneNumber, StoreStaffRole storeStaffRole) {
-
-        return new StoreStaff(
-                null, store, email, encodePassword, name, nickname, phoneNumber, storeStaffRole, false, null
-        );
+        return StoreStaff.builder()
+                .storeStaffId(storeStaffEntity.getStoreStaffId())
+                .store(this.mapStoreEntityToDomain(storeStaffEntity.getStore()))
+                .email(storeStaffEntity.getEmail())
+                .password(storeStaffEntity.getPassword())
+                .name(storeStaffEntity.getName())
+                .phoneNumber(storeStaffEntity.getPhoneNumber())
+                .storeStaffRole(storeStaffEntity.getStoreStaffRole())
+                .withdrawal(storeStaffEntity.isWithdrawal())
+                .withdrawalAt(storeStaffEntity.getWithdrawalAt())
+                .build();
     }
 }

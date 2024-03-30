@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-public class CreateUserDeliveryAddressTest {
+public class CreateUserDeliveryAddressCommandTest {
 
     private Long userId;
     private String address;
@@ -24,7 +24,7 @@ public class CreateUserDeliveryAddressTest {
 
         //when
         Throwable throwable = catchThrowable(() ->
-                CreateUserDeliveryAddress.create(userId, address, addressDetail, postalCode, addressAliases, defaultDeliveryAddress)
+                CreateUserDeliveryAddressCommand.create(userId, address, addressDetail, postalCode, addressAliases, defaultDeliveryAddress)
         );
 
         //then

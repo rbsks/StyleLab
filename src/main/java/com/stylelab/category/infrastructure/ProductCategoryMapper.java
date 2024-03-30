@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductCategoryMapper {
 
-    public ProductCategory toProductCategories(ProductCategoryEntity productCategoryEntity) {
+    public ProductCategory mapProductCategoryEntityToDomain(ProductCategoryEntity productCategoryEntity) {
         return new ProductCategory(
                 productCategoryEntity.getProductCategoryId(),
                 productCategoryEntity.getCategoryName(),

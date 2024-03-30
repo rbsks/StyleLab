@@ -13,9 +13,9 @@ public class UserDeliveryAddressRepository {
 
     public UserDeliveryAddress save(UserDeliveryAddress userDeliveryAddress) {
 
-        return userMapper.toUserDeliveryAddress(
+        return userMapper.mapUserDeliveryAddressEntityToDomain(
                 userDeliveryAddressJpaRepository.save(
-                        userMapper.toUserDeliveryAddressEntity(userDeliveryAddress)
+                        userMapper.mapUserDeliveryAddressToEntity(userDeliveryAddress)
                 )
         );
     }

@@ -3,7 +3,6 @@ package com.stylelab.user.application;
 import com.stylelab.common.exception.ServiceException;
 import com.stylelab.common.security.jwt.JwtTokenProvider;
 import com.stylelab.user.exception.UserException;
-import com.stylelab.user.infrastructure.UserMapper;
 import com.stylelab.user.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,19 +20,15 @@ public class UserSignUpService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final UserMapper userMapper;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public void signup(final SignUpUser signUpUser) {
+    public void signup(final SignUpUserCommand signUpUserCommand) {
 
-        String encodePassword = passwordEncoder.encode(signUpUser.password());
+        String encodePassword = passwordEncoder.encode(signUpUserCommand.password());
 
         try {
             userRepository.save(
-                    userMapper.saveUser(
-                            signUpUser.email(), encodePassword, signUpUser.name(),
-                            signUpUser.nickname(), signUpUser. phoneNumber()
-                    )
+                    signUpUserCommand.createSignUpUser(encodePassword)
             );
         } catch (DataAccessException exception) {
             throw new UserException(USERS_SAVE_FAIL, exception);

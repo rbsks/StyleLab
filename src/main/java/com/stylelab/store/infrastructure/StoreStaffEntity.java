@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
+@Builder
 @Entity(name = "store_staff")
 public class StoreStaffEntity extends BaseEntity  {
 
@@ -60,21 +61,6 @@ public class StoreStaffEntity extends BaseEntity  {
     private boolean withdrawal;
 
     private LocalDateTime withdrawalAt;
-
-    @Builder
-    public StoreStaffEntity(
-            StoreEntity store, String email, String password, String name,
-            String nickname, String phoneNumber, StoreStaffRole storeStaffRole, boolean withdrawal, LocalDateTime withdrawalAt) {
-        this.store = store;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.nickname = nickname;
-        this.phoneNumber = phoneNumber;
-        this.storeStaffRole = storeStaffRole;
-        this.withdrawal = withdrawal;
-        this.withdrawalAt = withdrawalAt;
-    }
 
     public void addStore(StoreEntity store) {
         this.store = store;

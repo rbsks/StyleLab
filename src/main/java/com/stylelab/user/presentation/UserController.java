@@ -2,8 +2,8 @@ package com.stylelab.user.presentation;
 
 import com.stylelab.common.dto.ApiResponse;
 import com.stylelab.common.security.principal.UserPrincipal;
-import com.stylelab.user.application.CreateUserDeliveryAddress;
-import com.stylelab.user.application.SignUpUser;
+import com.stylelab.user.application.CreateUserDeliveryAddressCommand;
+import com.stylelab.user.application.SignUpUserCommand;
 import com.stylelab.user.application.UserDeliveryAddressService;
 import com.stylelab.user.application.UserSignUpService;
 import com.stylelab.user.exception.UserError;
@@ -39,13 +39,13 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> signup(@RequestBody @Valid final SignupRequest signupRequest) {
-        SignUpUser signUpUser =
-                SignUpUser.create(
+        SignUpUserCommand signUpUserCommand =
+                SignUpUserCommand.create(
                         signupRequest.email(), signupRequest.password(), signupRequest.confirmPassword(),
                         signupRequest.name(), signupRequest.nickname(), signupRequest.phoneNumber()
                 );
 
-        userSignUpService.signup(signUpUser);
+        userSignUpService.signup(signUpUserCommand);
 
         return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.CREATED);
     }
@@ -87,13 +87,13 @@ public class UserController {
             @AuthenticationPrincipal UserPrincipal userPrincipal,
             @RequestBody @Valid final CreateUserDeliveryAddressRequest createUserDeliveryAddressRequest) {
 
-        CreateUserDeliveryAddress createUserDeliveryAddress =
-                CreateUserDeliveryAddress.create(
+        CreateUserDeliveryAddressCommand createUserDeliveryAddressCommand =
+                CreateUserDeliveryAddressCommand.create(
                         userPrincipal.getUserId(), createUserDeliveryAddressRequest.address(), createUserDeliveryAddressRequest.addressDetail(),
                         createUserDeliveryAddressRequest.postalCode(), createUserDeliveryAddressRequest.addressAliases(), createUserDeliveryAddressRequest.defaultDeliveryAddress()
         );
 
-        userDeliveryAddressService.createUserDeliveryAddress(createUserDeliveryAddress);
+        userDeliveryAddressService.createUserDeliveryAddress(createUserDeliveryAddressCommand);
 
         return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.NO_CONTENT);
     }

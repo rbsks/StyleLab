@@ -16,8 +16,8 @@ public class UserRepository {
 
     public User save(User user) {
 
-        return userMapper.toUser(
-                userJpaRepository.save(userMapper.toUserEntity(user))
+        return userMapper.mapUserEntityToDomain(
+                userJpaRepository.save(userMapper.mapUserToEntity(user))
         );
     }
 
@@ -31,7 +31,7 @@ public class UserRepository {
 
     public User findByEmail(String email) {
 
-        return userMapper.toUser(
+        return userMapper.mapUserEntityToDomain(
                 userJpaRepository.findByEmail(email)
                         .orElseThrow(() -> new ServiceException(UNAUTHORIZED, UNAUTHORIZED.getMessage()))
         );

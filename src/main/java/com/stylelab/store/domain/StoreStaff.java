@@ -1,9 +1,11 @@
 package com.stylelab.store.domain;
 
 import com.stylelab.store.constant.StoreStaffRole;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record StoreStaff(
         Long storeStaffId,
         Store store,

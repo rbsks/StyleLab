@@ -1,5 +1,8 @@
 package com.stylelab.user.domain;
 
+import lombok.Builder;
+
+@Builder
 public record UserDeliveryAddress(
         Long userAddressId,
         User user,

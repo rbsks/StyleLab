@@ -20,7 +20,7 @@ public class ProductCategoryRepository {
 
     public List<ProductCategory> findAllCategories() {
         return productCategoryJpaRepository.findAll().stream()
-                .map(productCategoryMapper::toProductCategories)
+                .map(productCategoryMapper::mapProductCategoryEntityToDomain)
                 .collect(Collectors.toList());
     }
 

@@ -4,7 +4,9 @@ import com.stylelab.common.dto.ApiResponse;
 import com.stylelab.common.security.principal.StorePrincipal;
 import com.stylelab.storage.constant.ImageType;
 import com.stylelab.storage.exception.StorageError;
+import com.stylelab.store.application.CreateStoreCommand;
 import com.stylelab.store.application.CreateStoreProductCommand;
+import com.stylelab.store.application.CreateStoreStaffCommand;
 import com.stylelab.store.application.StoreService;
 import com.stylelab.store.application.UploadCommand;
 import com.stylelab.store.exception.StoreError;
@@ -41,7 +43,17 @@ public class StoreController {
 
     @PostMapping("/apply")
     public ResponseEntity<ApiResponse<Void>> applyStore(@RequestBody @Valid final ApplyStoreRequest applyStoreRequest) {
-        storeService.applyStore(applyStoreRequest);
+        CreateStoreCommand createStoreCommand = CreateStoreCommand.create(
+                applyStoreRequest.store().brand(), applyStoreRequest.store().name(), applyStoreRequest.store().address(),
+                applyStoreRequest.store().addressDetail(), applyStoreRequest.store().postalCode(), applyStoreRequest.store().businessLicenseNumber()
+        );
+        CreateStoreStaffCommand createStoreStaffCommand = CreateStoreStaffCommand.create(
+                applyStoreRequest.storeStaff().email(), applyStoreRequest.storeStaff().password(),
+                applyStoreRequest.storeStaff().confirmPassword(), applyStoreRequest.storeStaff().name(),
+                applyStoreRequest.storeStaff().nickname(), applyStoreRequest.storeStaff().phoneNumber()
+        );
+
+        storeService.applyStore(createStoreCommand, createStoreStaffCommand);
         return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.CREATED);
     }
 

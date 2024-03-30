@@ -1,6 +1,5 @@
 package com.stylelab.user.infrastructure;
 
-import com.stylelab.user.constant.UserRole;
 import com.stylelab.user.domain.User;
 import com.stylelab.user.domain.UserDeliveryAddress;
 import org.springframework.stereotype.Component;
@@ -8,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public UserEntity toUserEntity(User user) {
+    public UserEntity mapUserToEntity(User user) {
 
         return UserEntity.builder()
                 .userId(user.userId())
@@ -23,27 +22,26 @@ public class UserMapper {
                 .build();
     }
 
-    public User toUser(UserEntity userEntity) {
+    public User mapUserEntityToDomain(UserEntity userEntity) {
 
-        return new User(
-                userEntity.getUserId(), userEntity.getEmail(), userEntity.getPassword(),
-                userEntity.getName(), userEntity.getNickname(), userEntity.getPhoneNumber(), userEntity.getRole(),
-                userEntity.isWithdrawal(), userEntity.getWithdrawalAt()
-        );
+        return User.builder()
+                .userId(userEntity.getUserId())
+                .email(userEntity.getEmail())
+                .password(userEntity.getPassword())
+                .name(userEntity.getName())
+                .nickname(userEntity.getNickname())
+                .phoneNumber(userEntity.getPhoneNumber())
+                .role(userEntity.getRole())
+                .withdrawal(userEntity.isWithdrawal())
+                .withdrawalAt(userEntity.getWithdrawalAt())
+                .build();
     }
 
-    public User saveUser(String email, String encodePassword, String name, String nickname, String phoneNumber) {
-
-        return new User(
-                null, email, encodePassword, name, nickname, phoneNumber, UserRole.ROLE_USER, false, null
-        );
-    }
-
-    public UserDeliveryAddressEntity toUserDeliveryAddressEntity(UserDeliveryAddress userDeliveryAddress) {
+    public UserDeliveryAddressEntity mapUserDeliveryAddressToEntity(UserDeliveryAddress userDeliveryAddress) {
 
         return UserDeliveryAddressEntity.builder()
                 .userAddressId(userDeliveryAddress.userAddressId())
-                .userEntity(this.toUserEntity(userDeliveryAddress.user()))
+                .userEntity(this.mapUserToEntity(userDeliveryAddress.user()))
                 .address(userDeliveryAddress.address())
                 .addressDetail(userDeliveryAddress.addressDetail())
                 .postalCode(userDeliveryAddress.postalCode())
@@ -52,25 +50,16 @@ public class UserMapper {
                 .build();
     }
 
-    public UserDeliveryAddress toUserDeliveryAddress(UserDeliveryAddressEntity userDeliveryAddressEntity) {
+    public UserDeliveryAddress mapUserDeliveryAddressEntityToDomain(UserDeliveryAddressEntity userDeliveryAddressEntity) {
 
-        return new UserDeliveryAddress(
-                userDeliveryAddressEntity.getUserAddressId(), this.toUser(userDeliveryAddressEntity.getUserEntity()),
-                userDeliveryAddressEntity.getAddress(), userDeliveryAddressEntity.getAddressDetail(), userDeliveryAddressEntity.getPostalCode(),
-                userDeliveryAddressEntity.getAddressAliases(), userDeliveryAddressEntity.getDefaultDeliveryAddress()
-        );
-    }
-
-    public UserDeliveryAddress saveUserDeliveryAddress(
-            Long userId, String address, String addressDetail, String postalCode, String addressAliases, Boolean defaultDeliveryAddress) {
-
-        return new UserDeliveryAddress(
-                null, this.createUser(userId), address, addressDetail, postalCode, addressAliases, defaultDeliveryAddress
-        );
-    }
-
-    private User createUser(Long userId) {
-
-        return new User(userId, null, null, null, null, null, null, false, null);
+        return UserDeliveryAddress.builder()
+                .userAddressId(userDeliveryAddressEntity.getUserAddressId())
+                .user(this.mapUserEntityToDomain(userDeliveryAddressEntity.getUserEntity()))
+                .address(userDeliveryAddressEntity.getAddress())
+                .addressDetail(userDeliveryAddressEntity.getAddressDetail())
+                .postalCode(userDeliveryAddressEntity.getPostalCode())
+                .addressDetail(userDeliveryAddressEntity.getAddressDetail())
+                .defaultDeliveryAddress(userDeliveryAddressEntity.getDefaultDeliveryAddress())
+                .build();
     }
 }

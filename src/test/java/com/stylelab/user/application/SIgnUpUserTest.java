@@ -26,7 +26,7 @@ public class SIgnUpUserTest {
 
         //when
         Throwable throwable = catchThrowable(() ->
-                SignUpUser.create(email, password, confirmPassword, name, nickname, phoneNumber)
+                SignUpUserCommand.create(email, password, confirmPassword, name, nickname, phoneNumber)
         );
 
         //then

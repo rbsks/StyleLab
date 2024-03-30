@@ -16,7 +16,7 @@ public class StoreStaffRepository {
 
     public StoreStaff findByEmail(String email) {
 
-        return storeMapper.toStoreStaff(
+        return storeMapper.mapStoreStaffEntityToDomain(
                 storeStaffJpaRepository.findByEmail(email)
                         .orElseThrow(() -> new ServiceException(UNAUTHORIZED, UNAUTHORIZED.getMessage()))
         );
@@ -24,8 +24,8 @@ public class StoreStaffRepository {
 
     public StoreStaff save(StoreStaff storeStaff) {
 
-        return storeMapper.toStoreStaff(
-                storeStaffJpaRepository.save(storeMapper.toStoreStaffEntity(storeStaff))
+        return storeMapper.mapStoreStaffEntityToDomain(
+                storeStaffJpaRepository.save(storeMapper.mapStoreStaffToEntity(storeStaff))
         );
     }
 }

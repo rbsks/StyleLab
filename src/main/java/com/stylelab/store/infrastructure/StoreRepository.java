@@ -13,8 +13,8 @@ public class StoreRepository {
 
     public Store save(Store store) {
 
-        return storeMapper.toStore(
-                storeJpaRepository.save(storeMapper.toStoreEntity(store))
+        return storeMapper.mapStoreEntityToDomain(
+                storeJpaRepository.save(storeMapper.mapStoreToEntity(store))
         );
     }
 }

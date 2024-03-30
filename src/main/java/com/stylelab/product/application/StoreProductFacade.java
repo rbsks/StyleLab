@@ -237,7 +237,7 @@ public class StoreProductFacade {
     private Product createProduct(Long storeId, ProductRequest productRequest) {
         Product product = ProductRequest.createProduct(productRequest);
         product.calculateDiscountPrice();
-        product.addStore(StoreEntity.createStore(storeId));
+        product.addStore(StoreEntity.of(storeId));
 
         return product;
     }
