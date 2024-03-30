@@ -5,7 +5,7 @@ import lombok.Builder;
 @Builder
 public record UserDeliveryAddress(
         Long userAddressId,
-        User user,
+        Long userId,
         String address,
         String addressDetail,
         String postalCode,

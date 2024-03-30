@@ -1,4 +1,4 @@
-package com.stylelab.product.application;
+package com.stylelab.storeproduct.application;
 
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
