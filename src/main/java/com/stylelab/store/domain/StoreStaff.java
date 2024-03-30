@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Builder
 public record StoreStaff(
         Long storeStaffId,
-        Store store,
+        Long storeId,
         String email,
         String password,
         String name,

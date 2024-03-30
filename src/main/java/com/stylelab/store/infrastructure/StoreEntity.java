@@ -55,20 +55,4 @@ public class StoreEntity extends BaseEntity  {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ApproveType approveType;
-
-    @OneToMany(mappedBy = "store", cascade = CascadeType.PERSIST)
-    List<StoreStaffEntity> storeStaffs = new ArrayList<>();
-
-    private StoreEntity(Long storeId) {
-        this.storeId = storeId;
-    }
-
-    public void addStoreStaff(StoreStaffEntity storeStaff) {
-        storeStaff.addStore(this);
-        this.storeStaffs.add(storeStaff);
-    }
-
-    public static StoreEntity of(Long storeId) {
-        return new StoreEntity(storeId);
-    }
 }

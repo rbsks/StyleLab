@@ -5,14 +5,12 @@ import com.stylelab.common.security.principal.StorePrincipal;
 import com.stylelab.storage.constant.ImageType;
 import com.stylelab.storage.exception.StorageError;
 import com.stylelab.store.application.CreateStoreCommand;
-import com.stylelab.store.application.CreateStoreProductCommand;
 import com.stylelab.store.application.CreateStoreStaffCommand;
 import com.stylelab.store.application.StoreService;
+import com.stylelab.store.application.StoreStorageService;
 import com.stylelab.store.application.UploadCommand;
 import com.stylelab.store.exception.StoreError;
 import com.stylelab.store.presentation.request.ApplyStoreRequest;
-import com.stylelab.store.presentation.request.CreateStoreProductRequest;
-import com.stylelab.store.presentation.response.CreateStoreProductResponse;
 import com.stylelab.store.presentation.response.ImageUploadResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -40,6 +38,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreService storeService;
+    private final StoreStorageService storageService;
 
     @PostMapping("/apply")
     public ResponseEntity<ApiResponse<Void>> applyStore(@RequestBody @Valid final ApplyStoreRequest applyStoreRequest) {
@@ -74,28 +73,7 @@ public class StoreController {
         return new ResponseEntity<>(
                 ApiResponse.createApiResponse(
                         ImageUploadResponse.create(
-                                storeService.uploadMultipartFiles(uploadCommand)
-                        )
-                ),
-                HttpStatus.CREATED
-        );
-    }
-
-    @PostMapping("/{storeId}/products")
-    public ResponseEntity<ApiResponse<CreateStoreProductResponse>> createStoreProduct(
-            @AuthenticationPrincipal StorePrincipal storePrincipal,
-            @NotNull(message = "STORE_ID_REQUIRE", payload = StoreError.class)
-            @PathVariable(name = "storeId") final Long storeId,
-            @RequestBody final CreateStoreProductRequest createStoreProductRequest) {
-
-        CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.create(
-                storePrincipal.getStoreId(), storeId, createStoreProductRequest
-        );
-
-        return new ResponseEntity<>(
-                ApiResponse.createApiResponse(
-                        CreateStoreProductResponse.create(
-                                storeService.createStoreProduct(createStoreProductCommand)
+                                storageService.uploadMultipartFiles(uploadCommand)
                         )
                 ),
                 HttpStatus.CREATED

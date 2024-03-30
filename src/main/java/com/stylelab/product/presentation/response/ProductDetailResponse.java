@@ -1,7 +1,7 @@
 package com.stylelab.product.presentation.response;
 
-import com.stylelab.product.repository.dto.ProductDetail;
-import com.stylelab.product.repository.dto.ProductDetailImage;
+import com.stylelab.product.infrastructure.dto.ProductDetail;
+import com.stylelab.product.infrastructure.dto.ProductDetailImage;
 import com.stylelab.storage.constant.ImageType;
 
 import java.util.List;
@@ -121,7 +121,7 @@ public record ProductDetailResponse(
         }
     }
 
-    public static ProductDetailResponse createProductDetailResponse(ProductDetail productDetail, List<ProductDetailImage> productDetailImage) {
+    public static ProductDetailResponse create(ProductDetail productDetail, List<ProductDetailImage> productDetailImage) {
 
         return new ProductDetailResponse(
                 Product.createProduct(productDetail),
