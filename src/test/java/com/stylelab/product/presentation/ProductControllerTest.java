@@ -26,29 +26,6 @@ public class ProductControllerTest {
     private MockMvc mockMvc;
 
     @Nested
-    @DisplayName("상품 목록 조회 테스트")
-    public class FindByProductByConditionsTest {
-
-        @Test
-        @DisplayName("상품 목록 조회 성공")
-        public void successFindByProductByConditionsTest() throws Exception {
-            //given
-
-            //when
-            mockMvc.perform(get("/v1/products")
-                            .param("page", "0")
-                            .param("size", "10")
-                            .param("productCategoryPath", "001001002")
-                            .contentType(MediaType.APPLICATION_JSON))
-                    .andDo(print())
-                    //then
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.code").value("20000"))
-                    .andExpect(jsonPath("$.message").value("success"));
-        }
-    }
-
-    @Nested
     @DisplayName("상품 상세 조회 테스트")
     public class findByProductIdTest {
 

@@ -18,10 +18,10 @@ public record CreateStoreStaffCommand(
         return new CreateStoreStaffCommand(email, password, confirmPassword, name, nickname, phoneNumber);
     }
 
-    public StoreStaff createStoreStaff(Store store, String encodePassword) {
+    public StoreStaff createStoreStaff(Long storeId, String encodePassword) {
 
         return StoreStaff.builder()
-                .store(store)
+                .storeId(storeId)
                 .email(this.email)
                 .password(encodePassword)
                 .name(this.name)

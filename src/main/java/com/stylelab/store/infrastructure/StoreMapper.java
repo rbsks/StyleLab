@@ -24,7 +24,7 @@ public class StoreMapper {
     public StoreStaffEntity mapStoreStaffToEntity(StoreStaff storeStaff) {
 
         return StoreStaffEntity.builder()
-                .store(this.mapStoreToEntity(storeStaff.store()))
+                .storeId(storeStaff.storeId())
                 .email(storeStaff.email())
                 .password(storeStaff.password())
                 .name(storeStaff.name())
@@ -55,7 +55,7 @@ public class StoreMapper {
 
         return StoreStaff.builder()
                 .storeStaffId(storeStaffEntity.getStoreStaffId())
-                .store(this.mapStoreEntityToDomain(storeStaffEntity.getStore()))
+                .storeId(storeStaffEntity.getStoreId())
                 .email(storeStaffEntity.getEmail())
                 .password(storeStaffEntity.getPassword())
                 .name(storeStaffEntity.getName())

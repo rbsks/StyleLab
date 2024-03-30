@@ -1,15 +1,11 @@
 package com.stylelab.store.application;
 
-import com.stylelab.product.application.StoreProductFacade;
-import com.stylelab.storage.application.StorageService;
-import com.stylelab.storage.application.UploadResult;
 import com.stylelab.store.domain.Store;
 import com.stylelab.store.domain.StoreStaff;
 import com.stylelab.store.exception.StoreError;
 import com.stylelab.store.exception.StoreException;
 import com.stylelab.store.infrastructure.StoreRepository;
 import com.stylelab.store.infrastructure.StoreStaffRepository;
-import com.stylelab.store.presentation.request.CreateStoreProductRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,10 +20,8 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
     private final StoreStaffRepository storeStaffRepository;
-    private final StorageService storageService;
-    private final StoreProductFacade storeProductFacade;
     private final PasswordEncoder passwordEncoder;
-    
+
     public void applyStore(final CreateStoreCommand createStoreCommand, final CreateStoreStaffCommand createStoreStaffCommand) {
 
 
@@ -37,19 +31,7 @@ public class StoreService {
 
         Store store = storeRepository.save(createStoreCommand.createStore());
         String encodePassword = passwordEncoder.encode(createStoreStaffCommand.password());
-        StoreStaff storeStaff = storeStaffRepository.save(createStoreStaffCommand.createStoreStaff(store, encodePassword));
+        StoreStaff storeStaff = storeStaffRepository.save(createStoreStaffCommand.createStoreStaff(store.storeId(), encodePassword));
     }
 
-    public UploadResult uploadMultipartFiles(UploadCommand uploadCommand) {
-
-        return storageService.uploadMultipartFiles(uploadCommand.imageType(), uploadCommand.multipartFiles());
-    }
-
-    public Long createStoreProduct(CreateStoreProductCommand createStoreProductCommand) {
-
-        return storeProductFacade.createStoreProduct(
-                createStoreProductCommand.storeId(), 
-                CreateStoreProductRequest.createStoreProductRequestVo(createStoreProductCommand.createStoreProductRequest())
-        );
-    }
 }

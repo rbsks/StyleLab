@@ -60,7 +60,7 @@ public class StorePrincipal implements UserDetails {
 
     public static StorePrincipal create(StoreStaff storeStaff) {
         return new StorePrincipal(
-                storeStaff.store().storeId(),
+                storeStaff.storeId(),
                 storeStaff.email(),
                 storeStaff.password(),
                 storeStaff.storeStaffRole(),
