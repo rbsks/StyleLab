@@ -4,7 +4,7 @@ import com.stylelab.common.security.exception.CustomAccessDeniedHandler;
 import com.stylelab.common.security.exception.CustomAuthenticationEntryPoint;
 import com.stylelab.common.security.filter.JwtAuthenticationFilter;
 import com.stylelab.store.constant.StoreStaffRole;
-import com.stylelab.user.constant.UsersRole;
+import com.stylelab.user.constant.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -81,24 +81,27 @@ public class WebSecurityConfiguration {
                                 .requestMatchers(
                                         "/**/users/signup",
                                         "/**/users/check-email",
-                                        "/**/users/check-nickname",
-                                        "/**/users/signin"
+                                        "/**/users/check-nickname"
+                                ).permitAll()
+                                .requestMatchers(
+                                        "/**/auth/users/signin",
+                                        "/**/auth/stores/signin"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/**/categories",
                                         "/**/categories/{productCategoryPath}"
                                 ).permitAll()
                                 .requestMatchers(
-                                        "/**/stores/apply",
-                                        "/**/stores/signin"
+                                        "/**/stores/apply"
                                 ).permitAll()
                                 .requestMatchers(
-                                        "/**/products"
+                                        "/**/products",
+                                        "/**/products/{productId}"
                                 ).permitAll()
                                 .requestMatchers(
                                         "/healthCheck"
                                 ).permitAll()
-                                .requestMatchers( "/**/users/deliveries").hasRole(UsersRole.ROLE_USER.getRole())
+                                .requestMatchers( "/**/users/deliveries").hasRole(UserRole.ROLE_USER.getRole())
                                 .requestMatchers( "/**/stores/**").hasAnyRole(
                                         StoreStaffRole.ROLE_STORE_OWNER.getRole(),
                                         StoreStaffRole.ROLE_STORE_STAFF.getRole()

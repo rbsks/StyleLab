@@ -1,5 +1,6 @@
 package com.stylelab.product.presentation;
 
+import com.stylelab.product.exception.ProductError;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,25 +26,40 @@ public class ProductControllerTest {
     private MockMvc mockMvc;
 
     @Nested
-    @DisplayName("상품 목록 조회 테스트")
-    public class FindByProductByConditionsTest {
+    @DisplayName("상품 상세 조회 테스트")
+    public class findByProductIdTest {
 
         @Test
-        @DisplayName("상품 목록 조회 성공")
+        @DisplayName("상품 상세 조회 성공")
         public void successFindByProductByConditionsTest() throws Exception {
             //given
+            final Long productId = 2_456_123L;
 
             //when
-            mockMvc.perform(get("/v1/products")
-                            .param("page", "0")
-                            .param("size", "10")
-                            .param("productCategoryPath", "001001002")
+            mockMvc.perform(get("/v1/products/{productId}", productId)
                             .contentType(MediaType.APPLICATION_JSON))
                     .andDo(print())
                     //then
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.code").value("20000"))
-                    .andExpect(jsonPath("$.message").value("success"));
+                    .andExpect(jsonPath("$.message").value("success"))
+                    .andExpect(jsonPath("$.product.productId").value(productId));
+        }
+
+        @Test
+        @DisplayName("상품 상세 조회 실패 - 존재하지 않는 상품인 경우")
+        public void failureFindByProductByConditionsTest() throws Exception {
+            //given
+            final Long productId = 100_000_000_000L;
+
+            //when
+            mockMvc.perform(get("/v1/products/{productId}", productId)
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    //then
+                    .andExpect(status().isBadRequest())
+                    .andExpect(jsonPath("$.code").value(ProductError.NOT_FOUND_PRODUCT.getCode()))
+                    .andExpect(jsonPath("$.message").value(ProductError.NOT_FOUND_PRODUCT.getMessage()));
         }
     }
 }

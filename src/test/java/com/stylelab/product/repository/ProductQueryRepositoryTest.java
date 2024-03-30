@@ -2,24 +2,24 @@ package com.stylelab.product.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.stylelab.file.constant.ImageType;
-import com.stylelab.product.repository.dto.ProductCollection;
-import com.stylelab.product.repository.dto.QProductCollection;
+import com.stylelab.product.infrastructure.ProductJpaRepository;
+import com.stylelab.product.infrastructure.QProductEntity;
+import com.stylelab.product.infrastructure.QProductImageEntity;
+import com.stylelab.product.infrastructure.dto.ProductDetail;
+import com.stylelab.product.infrastructure.dto.QProductDetail;
+import com.stylelab.product.infrastructure.dto.QProductDetailImage;
+import com.stylelab.store.constant.ApproveType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
-import java.util.List;
-
-import static com.stylelab.category.domain.QProductCategories.productCategories;
-import static com.stylelab.product.domain.QProduct.product;
-import static com.stylelab.product.domain.QProductImage.productImage;
-
+import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
+import static com.stylelab.product.infrastructure.QProductEntity.productEntity;
+import static com.stylelab.product.infrastructure.QProductImageEntity.productImageEntity;
+import static com.stylelab.store.infrastructure.QStoreEntity.storeEntity;
 
 @Slf4j
 @SpringBootTest
@@ -28,235 +28,64 @@ public class ProductQueryRepositoryTest {
     @Autowired
     private JPAQueryFactory jpaQueryFactory;
 
-    @Test
-    @DisplayName("상품 목록 조회 query test - where 조건이 아무것도 없는 경우")
-    public void findByProductByConditions_01() throws Exception {
-        //given
-        Pageable pageable = PageRequest.of(0, 10);
+    @Autowired
+    private ProductJpaRepository productJpaRepository;
 
-        //when
-        List<ProductCollection> items = jpaQueryFactory
+    @Test
+    @DisplayName("상품 상세 조회")
+    public void findByProductId() {
+        final Long productId = 60L;
+
+        ProductDetail productDetail = jpaQueryFactory
                 .select(
-                        new QProductCollection(
-                                product.productId,
-                                product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
-                                product.price,
-                                product.discountPrice,
-                                product.discountRate,
-                                productImage.imageUrl,
-                                productImage.imageType
+                        new QProductDetail(
+                                productEntity.productId,
+                                storeEntity.storeId,
+                                storeEntity.name,
+                                storeEntity.brand,
+                                productCategoryEntity.categoryPath,
+                                productCategoryEntity.categoryName,
+                                productEntity.name,
+                                productEntity.price,
+                                productEntity.discountPrice,
+                                productEntity.discountRate,
+                                productEntity.useOption,
+                                productEntity.optionDepth,
+                                productEntity.option2,
+                                productEntity.option1,
+                                productEntity.quantity,
+                                productEntity.soldOut,
+                                productEntity.deleted
                         )
                 )
-                .from(product)
-                .innerJoin(productImage).on(
-                        product.productId.eq(productImage.product.productId)
-                                .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
-                )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        //then
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 query test - where productCategoryPath")
-    public void findByProductByConditions_02() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        List<ProductCollection> items = jpaQueryFactory
-                .select(
-                        new QProductCollection(
-                                product.productId,
-                                product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
-                                product.price,
-                                product.discountPrice,
-                                product.discountRate,
-                                productImage.imageUrl,
-                                productImage.imageType
-                        )
-                )
-                .from(product)
-                .innerJoin(productImage).on(
-                        product.productId.eq(productImage.product.productId)
-                                .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
-                )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
+                .from(productEntity)
+                .innerJoin(storeEntity).on(productEntity.storeId.eq(storeEntity.storeId))
+                .innerJoin(productCategoryEntity).on(productEntity.productCategoryPath.eq(productCategoryEntity.categoryPath))
                 .where(
-                        likeProductCategoryPath(productCategoryPath)
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        //then
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 query test - where productCategoryPath and discountRate")
-    public void findByProductByConditions_03() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Integer discountRate = 10;
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        List<ProductCollection> items = jpaQueryFactory
-                .select(
-                        new QProductCollection(
-                                product.productId,
-                                product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
-                                product.price,
-                                product.discountPrice,
-                                product.discountRate,
-                                productImage.imageUrl,
-                                productImage.imageType
-                        )
-                )
-                .from(product)
-                .innerJoin(productImage).on(
-                        product.productId.eq(productImage.product.productId)
-                                .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
-                )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
-                .where(
-                        likeProductCategoryPath(productCategoryPath),
-                        eqDiscountRate(discountRate)
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        //then
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 query test - where productCategoryPath and discountRate and price1 and price2")
-    public void findByProductByConditions_04() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Integer discountRate = 10;
-        Integer price1 = 35000;
-        Integer price2 = null;
-        Pageable pageable = PageRequest.of(0, 10);
-
-        //when
-        List<ProductCollection> items = jpaQueryFactory
-                .select(
-                        new QProductCollection(
-                                product.productId,
-                                product.name,
-                                productCategories.categoryPath,
-                                productCategories.categoryName,
-                                product.price,
-                                product.discountPrice,
-                                product.discountRate,
-                                productImage.imageUrl,
-                                productImage.imageType
-                        )
-                )
-                .from(product)
-                .innerJoin(productImage).on(
-                        product.productId.eq(productImage.product.productId)
-                                .and(productImage.imageType.eq(ImageType.PRODUCT_ENTRY_MAIN))
-                )
-                .innerJoin(productCategories).on(product.productCategoryPath.eq(productCategories.categoryPath))
-                .where(
-                        likeProductCategoryPath(productCategoryPath),
-                        eqDiscountRate(discountRate),
-                        betweenPrice(price1, price2)
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
-
-        //then
-    }
-
-    @Test
-    @DisplayName("상품 목록 조회 count query test")
-    public void findByProductByConditionsCount() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Integer discountRate = null;
-        Integer price1 = 35000;
-        Integer price2 = null;
-
-        //when
-        Long count = jpaQueryFactory
-                .select(product.count())
-                .from(product)
-                .where(
-                        likeProductCategoryPath(productCategoryPath),
-                        eqDiscountRate(discountRate),
-                        betweenPrice(price1, price2)
+                        productEntity.productId.eq(productId),
+                        productEntity.deleted.eq(false),
+                        storeEntity.approveType.eq(ApproveType.APPROVE)
                 )
                 .fetchOne();
-
-        //then
-        log.info("findByProductByConditionsCount: {}", count);
     }
 
     @Test
-    @DisplayName("상품 목록 조회 cursor paging query test")
-    public void cursorFindByProductByConditions_04() throws Exception {
-        //given
-        String productCategoryPath = "001001001";
-        Integer discountRate = 10;
-        Integer price1 = 35000;
-        Integer price2 = null;
-        Pageable pageable = PageRequest.of(0, 10);
+    @DisplayName("상품 상세 이미지 목록 조회")
+    public void findAllByProductId() {
 
-        //when
-        // TODO Slice
-
-        //then
-    }
-
-    private BooleanExpression likeProductCategoryPath(String productCategoryPath) {
-        if (!StringUtils.hasText(productCategoryPath)) {
-            return null;
-        }
-
-        return product.productCategoryPath.like(productCategoryPath + "%");
-    }
-
-
-
-    private BooleanExpression eqDiscountRate(Integer discountRate) {
-        if (discountRate == null) {
-            return null;
-        }
-
-        return product.discountRate.eq(discountRate);
-    }
-
-
-
-    private BooleanExpression betweenPrice(Integer price1, Integer price2) {
-        if (price1 == null && price2 == null) {
-            return null;
-        }
-
-        BooleanExpression goePrice;
-        if (price1 != null && price2 == null) {
-            goePrice = product.price.goe(price1);
-        } else if (price1 != null) {
-            goePrice = product.price.goe(price1).and(product.price.loe(price2));
-        } else {
-            goePrice = product.price.loe(price2);
-        }
-
-        return goePrice;
+        final Long productId = 60L;
+        jpaQueryFactory
+                .select(
+                        new QProductDetailImage(
+                                productImageEntity.productImageId,
+                                productImageEntity.productId,
+                                productImageEntity.imageUrl,
+                                productImageEntity.imageOrder,
+                                productImageEntity.imageType
+                        )
+                )
+                .from(productImageEntity)
+                .where(productImageEntity.productId.eq(productId))
+                .fetch();
     }
 }

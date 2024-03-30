@@ -2,16 +2,16 @@ package com.stylelab.store.presentation;
 
 import com.stylelab.common.dto.ApiResponse;
 import com.stylelab.common.security.principal.StorePrincipal;
-import com.stylelab.file.constant.ImageType;
-import com.stylelab.file.exception.FileError;
-import com.stylelab.store.application.StoreFacade;
+import com.stylelab.storage.constant.ImageType;
+import com.stylelab.storage.exception.StorageError;
+import com.stylelab.store.application.CreateStoreCommand;
+import com.stylelab.store.application.CreateStoreStaffCommand;
+import com.stylelab.store.application.StoreService;
+import com.stylelab.store.application.StoreStorageService;
+import com.stylelab.store.application.UploadCommand;
 import com.stylelab.store.exception.StoreError;
 import com.stylelab.store.presentation.request.ApplyStoreRequest;
-import com.stylelab.store.presentation.request.CreateStoreProductRequest;
-import com.stylelab.store.presentation.request.SignInRequest;
-import com.stylelab.store.presentation.response.CreateStoreProductResponse;
 import com.stylelab.store.presentation.response.ImageUploadResponse;
-import com.stylelab.store.presentation.response.SignInResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +37,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreController {
 
-    private final StoreFacade storeFacade;
+    private final StoreService storeService;
+    private final StoreStorageService storageService;
 
     @PostMapping("/apply")
     public ResponseEntity<ApiResponse<Void>> applyStore(@RequestBody @Valid final ApplyStoreRequest applyStoreRequest) {
-        storeFacade.applyStore(applyStoreRequest);
-        return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.CREATED);
-    }
+        CreateStoreCommand createStoreCommand = CreateStoreCommand.create(
+                applyStoreRequest.store().brand(), applyStoreRequest.store().name(), applyStoreRequest.store().address(),
+                applyStoreRequest.store().addressDetail(), applyStoreRequest.store().postalCode(), applyStoreRequest.store().businessLicenseNumber()
+        );
+        CreateStoreStaffCommand createStoreStaffCommand = CreateStoreStaffCommand.create(
+                applyStoreRequest.storeStaff().email(), applyStoreRequest.storeStaff().password(),
+                applyStoreRequest.storeStaff().confirmPassword(), applyStoreRequest.storeStaff().name(),
+                applyStoreRequest.storeStaff().nickname(), applyStoreRequest.storeStaff().phoneNumber()
+        );
 
-    @PostMapping("/signin")
-    public ResponseEntity<ApiResponse<SignInResponse>> sigIn(@RequestBody @Valid final SignInRequest signInRequest) {
-        return ResponseEntity.ok(ApiResponse.createApiResponse(storeFacade.signIn(signInRequest)));
+        storeService.applyStore(createStoreCommand, createStoreStaffCommand);
+        return new ResponseEntity<>(ApiResponse.createEmptyApiResponse(), HttpStatus.CREATED);
     }
 
     @PostMapping("/{storeId}/products/images/{imageType}")
@@ -55,23 +61,21 @@ public class StoreController {
             @AuthenticationPrincipal StorePrincipal storePrincipal,
             @NotNull(message = "STORE_ID_REQUIRE", payload = StoreError.class)
             @PathVariable(name = "storeId") final Long storeId,
-            @NotNull(message = "IMAGE_TYPE_REQUIRE", payload = FileError.class)
+            @NotNull(message = "IMAGE_TYPE_REQUIRE", payload = StorageError.class)
             @PathVariable(name = "imageType") final ImageType imageType,
             @RequestPart(name = "files", required = false) final List<MultipartFile> multipartFiles) {
-        return new ResponseEntity<>(
-                ApiResponse.createApiResponse(storeFacade.uploadMultipartFiles(storePrincipal, storeId, imageType, multipartFiles)),
-                HttpStatus.CREATED
-        );
-    }
 
-    @PostMapping("/{storeId}/products")
-    public ResponseEntity<ApiResponse<CreateStoreProductResponse>> createStoreProduct(
-            @AuthenticationPrincipal StorePrincipal storePrincipal,
-            @NotNull(message = "STORE_ID_REQUIRE", payload = StoreError.class)
-            @PathVariable(name = "storeId") final Long storeId,
-            @RequestBody final CreateStoreProductRequest createStoreProductRequest) {
+        UploadCommand uploadCommand = UploadCommand.create(
+                storePrincipal.getStoreId(), storeId, storePrincipal.getEmail(),
+                storePrincipal.getStoreStaffRole(), imageType, multipartFiles
+        );
+
         return new ResponseEntity<>(
-                ApiResponse.createApiResponse(storeFacade.createStoreProduct(storePrincipal, storeId, createStoreProductRequest)),
+                ApiResponse.createApiResponse(
+                        ImageUploadResponse.create(
+                                storageService.uploadMultipartFiles(uploadCommand)
+                        )
+                ),
                 HttpStatus.CREATED
         );
     }

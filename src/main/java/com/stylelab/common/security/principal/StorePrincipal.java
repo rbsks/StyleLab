@@ -1,7 +1,6 @@
 package com.stylelab.common.security.principal;
 
 import com.stylelab.store.constant.StoreStaffRole;
-import com.stylelab.store.domain.Store;
 import com.stylelab.store.domain.StoreStaff;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +17,7 @@ import java.util.Collections;
 @AllArgsConstructor
 public class StorePrincipal implements UserDetails {
 
-    private Store store;
+    private Long storeId;
     private final String email;
     private final String password;
     private final StoreStaffRole storeStaffRole;
@@ -59,13 +58,13 @@ public class StorePrincipal implements UserDetails {
         return true;
     }
 
-    public static StorePrincipal create(Store store, StoreStaff storeStaff) {
+    public static StorePrincipal create(StoreStaff storeStaff) {
         return new StorePrincipal(
-                Store.createStore(store.getStoreId()),
-                storeStaff.getEmail(),
-                storeStaff.getPassword(),
-                storeStaff.getStoreStaffRole(),
-                Collections.singletonList(new SimpleGrantedAuthority(storeStaff.getStoreStaffRole().name()))
+                storeStaff.storeId(),
+                storeStaff.email(),
+                storeStaff.password(),
+                storeStaff.storeStaffRole(),
+                Collections.singletonList(new SimpleGrantedAuthority(storeStaff.storeStaffRole().name()))
         );
     }
 }
