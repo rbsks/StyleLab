@@ -1,10 +1,7 @@
 package com.stylelab.product.repository;
 
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.stylelab.product.infrastructure.ProductJpaRepository;
-import com.stylelab.product.infrastructure.QProductEntity;
-import com.stylelab.product.infrastructure.QProductImageEntity;
 import com.stylelab.product.infrastructure.dto.ProductDetail;
 import com.stylelab.product.infrastructure.dto.QProductDetail;
 import com.stylelab.product.infrastructure.dto.QProductDetailImage;
@@ -14,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.StringUtils;
 
 import static com.stylelab.category.infrastructure.QProductCategoryEntity.productCategoryEntity;
 import static com.stylelab.product.infrastructure.QProductEntity.productEntity;

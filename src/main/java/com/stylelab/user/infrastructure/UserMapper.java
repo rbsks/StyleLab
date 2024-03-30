@@ -41,7 +41,7 @@ public class UserMapper {
 
         return UserDeliveryAddressEntity.builder()
                 .userAddressId(userDeliveryAddress.userAddressId())
-                .userEntity(this.mapUserToEntity(userDeliveryAddress.user()))
+                .userId(userDeliveryAddress.userId())
                 .address(userDeliveryAddress.address())
                 .addressDetail(userDeliveryAddress.addressDetail())
                 .postalCode(userDeliveryAddress.postalCode())
@@ -54,7 +54,7 @@ public class UserMapper {
 
         return UserDeliveryAddress.builder()
                 .userAddressId(userDeliveryAddressEntity.getUserAddressId())
-                .user(this.mapUserEntityToDomain(userDeliveryAddressEntity.getUserEntity()))
+                .userId(userDeliveryAddressEntity.getUserId())
                 .address(userDeliveryAddressEntity.getAddress())
                 .addressDetail(userDeliveryAddressEntity.getAddressDetail())
                 .postalCode(userDeliveryAddressEntity.getPostalCode())

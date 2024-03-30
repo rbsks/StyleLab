@@ -1,6 +1,5 @@
 package com.stylelab.storeproduct.application;
 
-import com.stylelab.product.application.ProductValidator;
 import com.stylelab.product.domain.Product;
 import com.stylelab.product.domain.ProductImage;
 import com.stylelab.product.domain.ProductOption1;

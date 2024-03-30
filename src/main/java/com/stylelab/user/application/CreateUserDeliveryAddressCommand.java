@@ -1,6 +1,5 @@
 package com.stylelab.user.application;
 
-import com.stylelab.user.domain.User;
 import com.stylelab.user.domain.UserDeliveryAddress;
 import com.stylelab.user.exception.UserError;
 import com.stylelab.user.exception.UserException;
@@ -31,19 +30,12 @@ public record CreateUserDeliveryAddressCommand(
     public UserDeliveryAddress saveUserDeliveryAddress() {
 
         return UserDeliveryAddress.builder()
-                .user(this.createUser(this.userId))
+                .userId(this.userId)
                 .address(this.address)
                 .addressDetail(this.addressDetail)
                 .postalCode(this.postalCode)
                 .addressAliases(this.addressAliases)
                 .defaultDeliveryAddress(this.defaultDeliveryAddress)
-                .build();
-    }
-
-    private User createUser(Long userId) {
-
-        return User.builder()
-                .userId(userId)
                 .build();
     }
 }
