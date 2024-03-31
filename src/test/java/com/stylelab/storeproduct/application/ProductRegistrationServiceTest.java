@@ -1,1632 +1,318 @@
 package com.stylelab.storeproduct.application;
 
+import com.stylelab.product.domain.ProductOption1;
+import com.stylelab.product.domain.ProductOption2;
 import com.stylelab.product.exception.ProductError;
 import com.stylelab.product.exception.ProductException;
+import com.stylelab.product.infrastructure.ProductOption1Repository;
+import com.stylelab.product.infrastructure.ProductOption2Repository;
+import com.stylelab.product.infrastructure.ProductRepository;
+import com.stylelab.product.infrastructure.dto.ProductDetail;
+import com.stylelab.storeproduct.presentation.request.CreateStoreProductRequest;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 public class ProductRegistrationServiceTest {
 
+    private final Long storeId = 1L;
+    private final Long requestStoreId = 1L;
+
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private ProductOption1Repository productOption1Repository;
+    @Autowired
+    private ProductOption2Repository productOption2Repository;
     @Autowired
     private ProductRegistrationService productRegistrationService;
 
-    @Nested
-    @DisplayName("상품 등록 테스트")
-    public class CreateStoreProductTest {
+    @Test
+    @Transactional
+    @DisplayName("스토어 상품 등록 성공 - useOption false인 경우 ")
+    public void successCreateStoreProduct_01() throws Exception {
+        //given
+        CreateStoreProductRequest createStoreProductRequest = nonUseOptionCreateStoreProductRequest(storeId);
+        CreateStoreProductCommand createStoreProductCommand =
+                CreateStoreProductCommand.create(storeId, requestStoreId, createStoreProductRequest);
 
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 main 이미지가 null이면 ProductException(PRODUCT_ENTRY_MAIN_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_02() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .build();
+        //when
+        Long storeProductId = productRegistrationService.createStoreProduct(createStoreProductCommand);
 
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
+        //then
+        ProductDetail productDetail = productRepository.findByProductId(storeProductId)
+                .orElseThrow(() -> new ProductException(ProductError.NOT_FOUND_PRODUCT));
+        assertThat(productDetail.productId()).isEqualTo(storeProductId);
+    }
 
-            //then
-            assertEquals(ProductError.PRODUCT_ENTRY_MAIN_REQUIRE, productException.getServiceError());
+    @Test
+    @Transactional
+    @DisplayName("스토어 상품 등록 성공 - useOption ture, optionDepth가 1인 경우")
+    public void successCreateStoreProduct_02() throws Exception {
+        //given
+        CreateStoreProductRequest createStoreProductRequest = useOptionOptionDepth1CreateStoreProductRequest(storeId);
+        CreateStoreProductCommand createStoreProductCommand =
+                CreateStoreProductCommand.create(storeId, requestStoreId, createStoreProductRequest);
+
+        //when
+        Long storeProductId = productRegistrationService.createStoreProduct(createStoreProductCommand);
+
+        //then
+        ProductDetail productDetail = productRepository.findByProductId(storeProductId)
+                .orElseThrow(() -> new ProductException(ProductError.NOT_FOUND_PRODUCT));
+        assertThat(productDetail.productId()).isEqualTo(storeProductId);
+
+        List<ProductOption1> productOption1s = productOption1Repository.findAllByProductId(storeProductId);
+        for (ProductOption1 productOption1 : productOption1s) {
+            assertThat(productOption1.productId()).isEqualTo(storeProductId);
         }
+    }
 
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 main 이미지가 null이 아니고 이미지 url이 blank이면 ProductException(PRODUCT_ENTRY_MAIN_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_03() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("       ")
-                                    .build()
-                    )
-                    .build();
+    @Test
+    @Transactional
+    @DisplayName("스토어 상품 등록 성공 - useOption ture, optionDepth가 2인 경우")
+    public void successCreateStoreProduct_03() throws Exception {
+        //given
+        Long storeId = 1L;
+        CreateStoreProductRequest createStoreProductRequest = useOptionOptionDepth2CreateStoreProductRequest(storeId);
+        CreateStoreProductCommand createStoreProductCommand =
+                CreateStoreProductCommand.create(storeId, requestStoreId, createStoreProductRequest);
 
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
+        //when
+        Long storeProductId = productRegistrationService.createStoreProduct(createStoreProductCommand);
 
-            //then
-            assertEquals(ProductError.PRODUCT_ENTRY_MAIN_REQUIRE, productException.getServiceError());
+        //then
+        ProductDetail productDetail = productRepository.findByProductId(storeProductId)
+                .orElseThrow(() -> new ProductException(ProductError.NOT_FOUND_PRODUCT));
+        assertThat(productDetail.productId()).isEqualTo(storeProductId);
+
+        List<ProductOption1> productOption1s = productOption1Repository.findAllByProductId(storeProductId);
+        for (ProductOption1 productOption1 : productOption1s) {
+            assertThat(productOption1.productId()).isEqualTo(storeProductId);
+
+            Long productOption1Id = productOption1.productOption1Id();
+            List<ProductOption2> productOption2s =
+                    productOption2Repository.findAllByProductOption1Id(productOption1Id);
+            for (ProductOption2 productOption2 : productOption2s) {
+                assertThat(productOption2.productOption1Id()).isEqualTo(productOption1Id);
+            }
         }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 sub 이미지가 null이면 ProductException(PRODUCT_ENTRY_SUB_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_04() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_ENTRY_SUB_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 sub 이미지가 null이 아니고 리스트의 사이즈가 0이면 ProductException(PRODUCT_ENTRY_SUB_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_05() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(Collections.emptyList())
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_ENTRY_SUB_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 sub 이미지 리스트의 사이즈가 5개보다 많으면 ProductException(EXCEED_MAX_IMAGE_COUNT)이 발생한다.")
-        public void failureCreateStoreProduct_06() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image6").build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.EXCEED_MAX_IMAGE_COUNT, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 sub 이미지 중 한 개라도 이미지 url이 blank 이면 ProductException(PRODUCT_ENTRY_SUB_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_07() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("    ").build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_ENTRY_SUB_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 description 이미지가 null이면 ProductException(PRODUCT_DESCRIPTION_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_08() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_DESCRIPTION_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 description 이미지가 null이 아니고 리스트의 사이즈가 0이면 ProductException(PRODUCT_DESCRIPTION_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_09() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(Collections.emptyList())
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_DESCRIPTION_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 description 이미지 리스트의 사이즈가 10개보다 많으면 ProductException(EXCEED_MAX_IMAGE_COUNT)이 발생한다.")
-        public void failureCreateStoreProduct_10() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image11").build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.EXCEED_MAX_IMAGE_COUNT, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 description 이미지 중 한 개라도 이미지 url이 blank 이면 ProductException(PRODUCT_DESCRIPTION_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_11() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("  ").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_DESCRIPTION_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 요청 객체가 null인 경우 ProductException(PRODUCT_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_12() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .build();
-
-            // when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            // then
-            assertEquals(ProductError.PRODUCT_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 카테고리가 blank인 경우 ProductException(PRODUCT_CATEGORY_PATH_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_13() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("   ")
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_CATEGORY_PATH_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 이름이 blank인 경우 ProductException(PRODUCT_CATEGORY_PATH_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_14() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_NAME_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 가격이 3,000원 보다 작은 경우 ProductException(PRODUCT_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_15() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(2999)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 가격이 10억 보다 큰 경우 ProductException(PRODUCT_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_16() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_001)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 할인율이 0 보다 작은 경우 ProductException(PRODUCT_DISCOUNT_RATE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_17() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(3000)
-                                    .discountRate(-1)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_DISCOUNT_RATE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 할인율이 100 보다 큰 경우 ProductException(PRODUCT_DISCOUNT_RATE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_18() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(101)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_DISCOUNT_RATE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하지 않는 경우 상품 테이블의 수량 0 보다 작은 경우 ProductException(PRODUCT_QUANTITY_LESS_THEN_ZERO)이 발생한다.")
-        public void failureCreateStoreProduct_19() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(false)
-                                    .quantity(-1)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_QUANTITY_LESS_THEN_ZERO, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하는 경우 상품 테이블의 optionDepth가 0 보다 작은 경우 ProductException(PRODUCT_OPTION_DEPTH_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_20() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(-1)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_OPTION_DEPTH_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하는 경우 상품 테이블의 optionDepth가 2 보다 큰 경우 ProductException(PRODUCT_OPTION_DEPTH_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_21() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(3)
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_OPTION_DEPTH_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  productRequest의 option1이  null or empty인 경우 ProductException(PRODUCT_OPTION1_REQUEST_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_32() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_OPTION1_REQUEST_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  ProductOption1sRequests가 null or empty인 경우 ProductException(PRODUCT_OPTION1_REQUEST)이 발생한다.")
-        public void failureCreateStoreProduct_22() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("   ")
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION1_NAME_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  ProductOption1sRequest의 optionName이 blank인 경우 ProductException(OPTION1_NAME_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_23() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("   ")
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION1_NAME_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  ProductOption1sRequest의 additionalPrice가 0 보다 작은 경우 ProductException(OPTION1_ADDITIONAL_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_24() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(-1000)
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION1_ADDITIONAL_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  ProductOption1sRequest의 additionalPrice가 1억 보다 큰 경우 ProductException(OPTION1_ADDITIONAL_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_25() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(100_000_100)
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION1_ADDITIONAL_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 1인 경우  ProductOption1sRequest의 quantity가 0 보다 작은 경우 ProductException(OPTION1_EXISTS_PRODUCT_QUANTITY_GRATE_THEN_ZERO)이 발생한다.")
-        public void failureCreateStoreProduct_26() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(1)
-                                    .option1("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(-11)
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION1_EXISTS_PRODUCT_QUANTITY_GRATE_THEN_ZERO, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  productRequest의 option2가 null or empty인 경우 ProductException(PRODUCT_OPTION2_REQUEST)이 발생한다.")
-        public void failureCreateStoreProduct_33() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_OPTION2_NAME_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  ProductOption2sRequests가 null or empty인 경우 ProductException(PRODUCT_OPTION2_REQUEST)이 발생한다.")
-        public void failureCreateStoreProduct_27() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .option2("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.PRODUCT_OPTION2_REQUEST_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  ProductOption2sRequest의 optionName이 blank인 경우 ProductException(OPTION2_NAME_REQUIRE)이 발생한다.")
-        public void failureCreateStoreProduct_28() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .option2("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .productOption2sRequest(
-                                                    Collections.singletonList(
-                                                            CreateStoreProductCommand.ProductOption2sRequest.builder()
-                                                                    .option2Name("  ")
-                                                                    .build()
-                                                    )
-                                            )
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION2_NAME_REQUIRE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  ProductOption2sRequest의 additionalPrice가 0 보다 작은 경우 ProductException(OPTION2_ADDITIONAL_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_29() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .option2("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .productOption2sRequest(
-                                                    Collections.singletonList(
-                                                            CreateStoreProductCommand.ProductOption2sRequest.builder()
-                                                                    .option2Name("XL")
-                                                                    .additionalPrice(-3000)
-                                                                    .build()
-                                                    )
-                                            )
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION2_ADDITIONAL_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  ProductOption2sRequest의 additionalPrice가 1억 보다 큰 경우 ProductException(OPTION2_ADDITIONAL_PRICE_OUT_OF_RANGE)이 발생한다.")
-        public void failureCreateStoreProduct_30() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .option2("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .productOption2sRequest(
-                                                    Collections.singletonList(
-                                                            CreateStoreProductCommand.ProductOption2sRequest.builder()
-                                                                    .option2Name("XL")
-                                                                    .additionalPrice(100_000_100)
-                                                                    .build()
-                                                    )
-                                            )
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION2_ADDITIONAL_PRICE_OUT_OF_RANGE, productException.getServiceError());
-        }
-
-        @Test
-        @DisplayName("상품 등록 실패 - 상품 옵션을 사용하고 optionDepth가 2인 경우  ProductOption2sRequest의 quantity가 0 보다 작은 경우 ProductException(OPTION2_EXISTS_PRODUCT_QUANTITY_GRATE_THEN_ZERO)이 발생한다.")
-        public void failureCreateStoreProduct_31() throws Exception {
-            //given
-            Long storeId = 1L;
-            CreateStoreProductCommand createStoreProductCommand = CreateStoreProductCommand.builder()
-                    .entryMain(
-                            CreateStoreProductCommand.EntryMain.builder()
-                                    .entryMain("https://image1")
-                                    .build()
-                    )
-                    .entrySubs(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image1").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image2").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image3").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image4").build(),
-                                    CreateStoreProductCommand.EntrySub.builder().entrySub("https://image5").build()
-                            )
-                    )
-                    .descriptions(
-                            Arrays.asList(
-                                    CreateStoreProductCommand.Description.builder().description("https://image1").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image2").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image3").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image4").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image5").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image6").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image7").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image8").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image9").build(),
-                                    CreateStoreProductCommand.Description.builder().description("https://image10").build()
-                            )
-                    )
-                    .productRequest(
-                            CreateStoreProductCommand.ProductRequest.builder()
-                                    .productCategoryPath("001001001")
-                                    .name("coby 맨투맨")
-                                    .price(1_000_000_000)
-                                    .discountRate(100)
-                                    .useOption(true)
-                                    .quantity(0)
-                                    .optionDepth(2)
-                                    .option1("색상")
-                                    .option2("사이즈")
-                                    .build()
-                    )
-                    .productOption1SRequest(
-                            Collections.singletonList(
-                                    CreateStoreProductCommand.ProductOption1sRequest.builder()
-                                            .option1Name("화이트")
-                                            .additionalPrice(30000)
-                                            .quantity(0)
-                                            .productOption2sRequest(
-                                                    Collections.singletonList(
-                                                            CreateStoreProductCommand.ProductOption2sRequest.builder()
-                                                                    .option2Name("XL")
-                                                                    .additionalPrice(10000)
-                                                                    .quantity(-3)
-                                                                    .build()
-                                                    )
-                                            )
-                                            .build()
-                            )
-                    )
-                    .build();
-
-            //when
-            ProductException productException = assertThrows(ProductException.class,
-                    () -> productRegistrationService.createStoreProduct(createStoreProductCommand));
-
-            //then
-            assertEquals(ProductError.OPTION2_EXISTS_PRODUCT_QUANTITY_GRATE_THEN_ZERO, productException.getServiceError());
-        }
+    }
+
+    private CreateStoreProductRequest useOptionOptionDepth2CreateStoreProductRequest(Long storeId) {
+        return CreateStoreProductRequest.builder()
+                .entryMain(
+                        CreateStoreProductRequest.EntryMain.builder()
+                                .entryMain("https://image1")
+                                .build()
+                )
+                .entrySubs(
+                        Arrays.asList(
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image1").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image2").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image3").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image4").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image5").build()
+                        )
+                )
+                .descriptions(
+                        Arrays.asList(
+                                CreateStoreProductRequest.Description.builder().description("https://image1").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image2").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image3").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image4").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image5").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image6").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image7").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image8").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image9").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image10").build()
+                        )
+                )
+                .productRequest(
+                        CreateStoreProductRequest.ProductRequest.builder()
+                                .storeId(storeId)
+                                .productCategoryPath("001001001")
+                                .name("coby 맨투맨")
+                                .price(35000)
+                                .discountRate(100)
+                                .useOption(true)
+                                .quantity(0)
+                                .optionDepth(2)
+                                .option1("색상")
+                                .option2("사이즈")
+                                .build()
+                )
+                .productOption1sRequests(
+                        Arrays.asList(
+                                CreateStoreProductRequest.ProductOption1sRequest.builder()
+                                        .option1Name("화이트")
+                                        .additionalPrice(0)
+                                        .quantity(0)
+                                        .productOption2sRequests(
+                                                Arrays.asList(
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("M")
+                                                                .additionalPrice(0)
+                                                                .quantity(10000)
+                                                                .build(),
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("L")
+                                                                .additionalPrice(5000)
+                                                                .quantity(10000)
+                                                                .build(),
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("XL")
+                                                                .additionalPrice(10000)
+                                                                .quantity(10000)
+                                                                .build()
+                                                )
+                                        )
+                                        .build(),
+                                CreateStoreProductRequest.ProductOption1sRequest.builder()
+                                        .option1Name("블랙")
+                                        .additionalPrice(0)
+                                        .quantity(0)
+                                        .productOption2sRequests(
+                                                Arrays.asList(
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("M")
+                                                                .additionalPrice(0)
+                                                                .quantity(10000)
+                                                                .build(),
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("L")
+                                                                .additionalPrice(5000)
+                                                                .quantity(10000)
+                                                                .build(),
+                                                        CreateStoreProductRequest.ProductOption2sRequest.builder()
+                                                                .option2Name("XL")
+                                                                .additionalPrice(10000)
+                                                                .quantity(10000)
+                                                                .build()
+                                                )
+                                        )
+                                        .build()
+                        )
+                )
+                .build();
+    }
+
+    private CreateStoreProductRequest useOptionOptionDepth1CreateStoreProductRequest(Long storeId) {
+        return CreateStoreProductRequest.builder()
+                .entryMain(
+                        CreateStoreProductRequest.EntryMain.builder()
+                                .entryMain("https://image1")
+                                .build()
+                )
+                .entrySubs(
+                        Arrays.asList(
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image1").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image2").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image3").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image4").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image5").build()
+                        )
+                )
+                .descriptions(
+                        Arrays.asList(
+                                CreateStoreProductRequest.Description.builder().description("https://image1").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image2").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image3").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image4").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image5").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image6").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image7").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image8").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image9").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image10").build()
+                        )
+                )
+                .productRequest(
+                        CreateStoreProductRequest.ProductRequest.builder()
+                                .storeId(storeId)
+                                .productCategoryPath("001001001")
+                                .name("coby 맨투맨")
+                                .price(35000)
+                                .discountRate(100)
+                                .useOption(true)
+                                .quantity(0)
+                                .optionDepth(1)
+                                .option1("사이즈")
+                                .build()
+                )
+                .productOption1sRequests(
+                        Arrays.asList(
+                                CreateStoreProductRequest.ProductOption1sRequest.builder()
+                                        .option1Name("M")
+                                        .additionalPrice(0)
+                                        .quantity(10000)
+                                        .build(),
+                                CreateStoreProductRequest.ProductOption1sRequest.builder()
+                                        .option1Name("L")
+                                        .additionalPrice(5000)
+                                        .quantity(10000)
+                                        .build(),
+                                CreateStoreProductRequest.ProductOption1sRequest.builder()
+                                        .option1Name("XL")
+                                        .additionalPrice(10000)
+                                        .quantity(10000)
+                                        .build()
+                        )
+                )
+                .build();
+    }
+
+    private CreateStoreProductRequest nonUseOptionCreateStoreProductRequest(Long storeId) {
+
+        return CreateStoreProductRequest.builder()
+                .entryMain(
+                        CreateStoreProductRequest.EntryMain.builder()
+                                .entryMain("https://image1")
+                                .build()
+                )
+                .entrySubs(
+                        Arrays.asList(
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image1").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image2").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image3").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image4").build(),
+                                CreateStoreProductRequest.EntrySub.builder().entrySub("https://image5").build()
+                        )
+                )
+                .descriptions(
+                        Arrays.asList(
+                                CreateStoreProductRequest.Description.builder().description("https://image1").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image2").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image3").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image4").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image5").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image6").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image7").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image8").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image9").build(),
+                                CreateStoreProductRequest.Description.builder().description("https://image10").build()
+                        )
+                )
+                .productRequest(
+                        CreateStoreProductRequest.ProductRequest.builder()
+                                .storeId(storeId)
+                                .productCategoryPath("001001001")
+                                .name("coby 맨투맨")
+                                .price(35000)
+                                .discountRate(100)
+                                .useOption(false)
+                                .quantity(10000)
+                                .optionDepth(0)
+                                .build()
+                ).build();
     }
 }

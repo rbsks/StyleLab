@@ -34,4 +34,11 @@ public class ProductOption1Repository {
                 .map(productMapper::mapProductOption1EntityToDomain)
                 .toList();
     }
+
+    public List<ProductOption1> findAllByProductId(Long productId) {
+
+        return productOption1JpaRepository.findAllByProductId(productId).stream()
+                .map(productMapper::mapProductOption1EntityToDomain)
+                .toList();
+    }
 }
