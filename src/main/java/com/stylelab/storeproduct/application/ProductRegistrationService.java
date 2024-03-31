@@ -3,6 +3,7 @@ package com.stylelab.storeproduct.application;
 import com.stylelab.product.domain.Product;
 import com.stylelab.product.domain.ProductImage;
 import com.stylelab.product.domain.ProductOption1;
+import com.stylelab.product.domain.ProductOption2;
 import com.stylelab.product.infrastructure.ProductImageRepository;
 import com.stylelab.product.infrastructure.ProductOption1Repository;
 import com.stylelab.product.infrastructure.ProductOption2Repository;
@@ -44,17 +45,22 @@ public class ProductRegistrationService {
 
             for (ProductOption1 productOption1 : productOption1s) {
                 ProductOption1 saveProductOption1 = productOption1Repository.save(productOption1);
-                if (productOption1.productOption2s() != null) {
-                    productOption2Repository.saveAll(
-                            productOption1.productOption2s().stream()
-                                    .map(productOption2 -> productOption2.initProductOption1Id(saveProductOption1.productOption1Id()))
-                                    .toList()
-                    );
-                }
+                Long productOption1Id = saveProductOption1.productOption1Id();
+                saveProductOption2s(productOption1.productOption2s(), productOption1Id);
             }
 
         }
 
         return product.productId();
+    }
+
+    private void saveProductOption2s(List<ProductOption2> productOption2s, Long productOption1Id) {
+        if (productOption2s != null) {
+            productOption2Repository.saveAll(
+                    productOption2s.stream()
+                            .map(productOption2 -> productOption2.initProductOption1Id(productOption1Id))
+                            .toList()
+            );
+        }
     }
 }
