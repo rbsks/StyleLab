@@ -1,12 +1,12 @@
 package com.stylelab.auth.application;
 
 import com.stylelab.auth.exception.AuthError;
+import com.stylelab.auth.exception.AuthException;
 import com.stylelab.common.security.constant.UserType;
 import com.stylelab.common.security.jwt.JwtTokenProvider;
 import com.stylelab.store.domain.StoreStaff;
 import com.stylelab.store.infrastructure.StoreStaffRepository;
 import com.stylelab.user.domain.User;
-import com.stylelab.user.exception.UserException;
 import com.stylelab.user.infrastructure.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,9 @@ public class AuthService {
 
         User user = userRepository.findByEmail(signInUser.email());
 
-        validationPassword(signInUser.password(), user.password());
+        if (!user.matchPassword(signInUser.password(), passwordEncoder)) {
+            throw new AuthException(AuthError.INVALID_PASSWORD);
+        }
 
         return jwtTokenProvider.createAuthToken(user.email(), user.role().name(), UserType.USER);
     }
@@ -36,14 +38,11 @@ public class AuthService {
 
         StoreStaff storeStaff = storeStaffRepository.findByEmail(signInUser.email());
 
-        validationPassword(signInUser.password(), storeStaff.password());
+        if (!storeStaff.matchPassword(signInUser.password(), passwordEncoder)) {
+            throw new AuthException(AuthError.INVALID_PASSWORD);
+        }
 
         return jwtTokenProvider.createAuthToken(storeStaff.email(), storeStaff.storeStaffRole().name(), UserType.STORE);
     }
 
-    private void validationPassword(String rawPassword, String encodedPassword) {
-        if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
-            throw new UserException(AuthError.INVALID_PASSWORD);
-        }
-    }
 }

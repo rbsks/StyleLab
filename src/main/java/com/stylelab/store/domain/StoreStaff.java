@@ -2,6 +2,7 @@ package com.stylelab.store.domain;
 
 import com.stylelab.store.constant.StoreStaffRole;
 import lombok.Builder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -18,4 +19,7 @@ public record StoreStaff(
         boolean withdrawal,
         LocalDateTime withdrawalAt) {
 
+    public boolean matchPassword(String requestPassword, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(requestPassword, this.password);
+    }
 }
