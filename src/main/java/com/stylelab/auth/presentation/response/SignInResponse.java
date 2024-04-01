@@ -1,14 +1,14 @@
 package com.stylelab.auth.presentation.response;
 
-import com.stylelab.user.exception.UserError;
-import com.stylelab.user.exception.UserException;
+import com.stylelab.auth.exception.AuthError;
+import com.stylelab.auth.exception.AuthException;
 import org.springframework.util.StringUtils;
 
 public record SignInResponse(String token) {
 
     public static SignInResponse create(String token) {
         if (!StringUtils.hasText(token)) {
-            throw new UserException(UserError.EMAIL_IS_REQUIRED);
+            throw new AuthException(AuthError.FAIL_CREATE_JWT);
         }
 
         return new SignInResponse(token);
