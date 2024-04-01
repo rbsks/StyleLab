@@ -1,12 +1,12 @@
 package com.stylelab.auth.presentation.response;
 
-import com.stylelab.user.exception.UserException;
+import com.stylelab.auth.exception.AuthError;
+import com.stylelab.auth.exception.AuthException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class SigInResponseTest {
 
@@ -20,8 +20,8 @@ public class SigInResponseTest {
         SignInResponse response = SignInResponse.create(token);
 
         // then
-        assertNotNull(response);
-        assertEquals(token, response.token());
+        assertThat(response).isNotNull();
+        assertThat(response.token()).isEqualTo(token);
     }
 
     @Test
@@ -31,7 +31,11 @@ public class SigInResponseTest {
         String token = null;
 
         // when
-        assertThrows(UserException.class,
-                () -> SignInResponse.create(token));
+        Throwable throwable = catchThrowable(() ->
+                SignInResponse.create(token));
+
+        // then
+        assertThat(throwable).isInstanceOf(AuthException.class);
+        assertThat(throwable.getMessage()).isEqualTo(AuthError.FAIL_CREATE_JWT.getMessage());
     }
 }

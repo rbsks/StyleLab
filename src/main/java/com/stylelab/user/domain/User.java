@@ -2,6 +2,7 @@ package com.stylelab.user.domain;
 
 import com.stylelab.user.constant.UserRole;
 import lombok.Builder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
@@ -17,4 +18,7 @@ public record User(
         boolean withdrawal,
         LocalDateTime withdrawalAt) {
 
+    public boolean matchPassword(String requestPassword, PasswordEncoder passwordEncoder) {
+        return passwordEncoder.matches(requestPassword, this.password);
+    }
 }
